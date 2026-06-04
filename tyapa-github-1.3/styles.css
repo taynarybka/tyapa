@@ -2630,6 +2630,26 @@ input {
   opacity: 1;
 }
 
+.zoom-controls .center-tyapa-button {
+  align-items: center;
+  background:
+    radial-gradient(circle at 34% 20%, rgba(255, 255, 255, 0.78) 0 14%, transparent 15%),
+    linear-gradient(180deg, rgba(255, 250, 242, 0.96), rgba(174, 231, 255, 0.82));
+  border-color: rgba(76, 130, 200, 0.32);
+  display: grid;
+  justify-items: center;
+  overflow: hidden;
+}
+
+.zoom-controls .center-tyapa-button img {
+  display: block;
+  height: 92%;
+  object-fit: contain;
+  pointer-events: none;
+  transform: translateY(2px) scale(1.18);
+  width: 92%;
+}
+
 .seed-cancel-button {
   align-items: center;
   background:
@@ -4915,6 +4935,13 @@ dt {
   pointer-events: auto;
 }
 
+.zoom-controls .center-tyapa-button {
+  background:
+    radial-gradient(circle at 34% 20%, rgba(255, 255, 255, 0.78) 0 14%, transparent 15%),
+    linear-gradient(180deg, rgba(255, 250, 242, 0.96), rgba(174, 231, 255, 0.82));
+  border-color: rgba(76, 130, 200, 0.32);
+}
+
 .shell-home-shell {
   display: none;
 }
@@ -5391,9 +5418,24 @@ dt {
   opacity: 1;
 }
 
-.trail-art-turn-horizontal,
-.trail-art-turn-vertical {
-  opacity: 0.9;
+.trail-art-arm {
+  opacity: 0.94;
+}
+
+.trail-art-arm-up {
+  clip-path: inset(0 0 50% 0);
+}
+
+.trail-art-arm-down {
+  clip-path: inset(50% 0 0 0);
+}
+
+.trail-art-arm-left {
+  clip-path: inset(0 50% 0 0);
+}
+
+.trail-art-arm-right {
+  clip-path: inset(0 0 0 50%);
 }
 
 .trail {

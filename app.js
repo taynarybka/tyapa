@@ -152,6 +152,9 @@ const MESSAGE_VARIANTS = {
   zoomChanged: [
     ({ viewSize }) => `Масштаб карты: ${viewSize} x ${viewSize}.`,
   ],
+  mapCentered: [
+    () => "Карта снова вокруг Тяпы.",
+  ],
   progressReset: [
     () => "Прогресс сброшен. Тяпа снова в центре мира.",
   ],
@@ -166,10 +169,10 @@ const TRAIL_IMAGES = {
   start: "assets/trails/variant-2/start.png",
   middle: "assets/trails/variant-2/middle.png",
   max: "assets/trails/variant-2/max.png",
-  horizontal: "assets/trails/variant-2/horizontal.png",
-  vertical: "assets/trails/variant-2/vertical.png",
-  cross: "assets/trails/variant-2/cross.png",
-  tDown: "assets/trails/variant-2/t-down.png",
+  horizontal: "assets/trails/variant-2/horizontal-cell.png",
+  vertical: "assets/trails/variant-2/vertical-cell.png",
+  cross: "assets/trails/variant-2/cross-cell.png",
+  tDown: "assets/trails/variant-2/t-down-cell.png",
 };
 const PRELOAD_CRITICAL_ASSETS = [
   "assets/backgrounds/screen-background-open-sky.png",
@@ -236,6 +239,12 @@ const TUTORIAL_STEPS = [
     text: "Плюс и минус меняют масштаб карты. Попробуй приблизить мир Тяпы.",
     target: "zoom",
     waitsFor: "zoom",
+  },
+  {
+    title: "Вернуться к Тяпе",
+    text: "Иконка Тяпы рядом с масштабом возвращает карту к нему. Нажми на нее, если заблудилась в окне карты.",
+    target: "zoom",
+    waitsFor: "center",
   },
   {
     title: "Теперь можно гулять",
@@ -337,6 +346,7 @@ const elements = {
   tutorialText: document.querySelector("#tutorialText"),
   tutorialTitle: document.querySelector("#tutorialTitle"),
   viewLabel: document.querySelector("#viewLabel"),
+  centerTyapaButton: document.querySelector("#centerTyapaButton"),
   zoomControls: document.querySelector(".zoom-controls"),
   zoomInButton: document.querySelector("#zoomInButton"),
   zoomOutButton: document.querySelector("#zoomOutButton"),
@@ -1134,7 +1144,14 @@ function straightTrailImage(level) {
 function trailArtLayers(directions, level) {
   const has = (direction) => directions.includes(direction);
   const layer = (src, rotation = 0, layerClass = "trail-art-main") => ({ src, rotation, layerClass });
-  const straight = straightTrailImage(level);
+  const armLayer = (direction) => {
+    const isVertical = direction === "up" || direction === "down";
+    return layer(
+      isVertical ? TRAIL_IMAGES.vertical : TRAIL_IMAGES.horizontal,
+      0,
+      `trail-art-arm trail-art-arm-${direction}`
+    );
+  };
 
   if (directions.length >= 4) {
     return [layer(TRAIL_IMAGES.cross)];
@@ -1151,18 +1168,15 @@ function trailArtLayers(directions, level) {
     return [layer(TRAIL_IMAGES.tDown, rotationByMissingDirection[missing] || 0)];
   }
 
-  if (has("left") && has("right")) return [layer(straight)];
-  if (has("up") && has("down")) return [layer(straight, 90)];
+  if (has("left") && has("right")) return [layer(TRAIL_IMAGES.horizontal)];
+  if (has("up") && has("down")) return [layer(TRAIL_IMAGES.vertical)];
 
   if (directions.length === 2) {
-    return [
-      layer(straight, 0, "trail-art-turn-horizontal"),
-      layer(straight, 90, "trail-art-turn-vertical"),
-    ];
+    return directions.map(armLayer);
   }
 
-  if (has("up") || has("down")) return [layer(straight, 90)];
-  return [layer(straight)];
+  if (directions.length === 1) return [armLayer(directions[0])];
+  return [layer(straightTrailImage(level))];
 }
 
 function trailPaths(directions) {
@@ -2659,6 +2673,17 @@ function changeZoom(direction) {
   playSfx(direction > 0 ? "zoomIn" : "zoomOut");
 }
 
+function centerViewOnTyapa() {
+  if (isStartTutorialBlockingActions()) return;
+
+  state.viewCenter = clampViewCenterForSize({ ...state.position }, state.viewSize);
+  completeStartTutorialAction("center");
+  saveState();
+  render();
+  setRandomMessage("mapCentered");
+  playSfx("uiTap");
+}
+
 function loadAudioSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem(AUDIO_SETTINGS_KEY));
@@ -3597,9 +3622,14 @@ elements.tutorialSkipButton?.addEventListener("click", skipTutorial);
 elements.introSkipButton?.addEventListener("click", () => finishIntroCutscene({ skipped: true }));
 elements.zoomInButton.addEventListener("pointerdown", (event) => event.stopPropagation());
 elements.zoomOutButton.addEventListener("pointerdown", (event) => event.stopPropagation());
+elements.centerTyapaButton?.addEventListener("pointerdown", (event) => event.stopPropagation());
 elements.zoomInButton.addEventListener("click", (event) => {
   event.stopPropagation();
   changeZoom(1);
+});
+elements.centerTyapaButton?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  centerViewOnTyapa();
 });
 elements.zoomOutButton.addEventListener("click", (event) => {
   event.stopPropagation();
