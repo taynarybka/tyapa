@@ -162,6 +162,15 @@ const TILE_IMAGES = {
   forest: "assets/tile-forest.png",
   closed: "assets/tile-closed.png",
 };
+const TRAIL_IMAGES = {
+  start: "assets/trails/variant-2/start.png",
+  middle: "assets/trails/variant-2/middle.png",
+  max: "assets/trails/variant-2/max.png",
+  horizontal: "assets/trails/variant-2/horizontal.png",
+  vertical: "assets/trails/variant-2/vertical.png",
+  cross: "assets/trails/variant-2/cross.png",
+  tDown: "assets/trails/variant-2/t-down.png",
+};
 const PRELOAD_CRITICAL_ASSETS = [
   "assets/backgrounds/screen-background-open-sky.png",
   TILE_IMAGES.field,
@@ -1103,24 +1112,57 @@ function renderTrail(cell) {
       : activeDirections.length === 2 && !hasOppositePair
         ? "trail-turn"
         : "trail-path";
-  const strokes = trailPaths(activeDirections).map(({ d, kind }) => `
-    <path class="trail-line trail-line-shadow trail-line-${kind}" d="${d}"></path>
-    <path class="trail-line trail-line-edge trail-line-${kind}" d="${d}"></path>
-    <path class="trail-line trail-line-core trail-line-${kind}" d="${d}"></path>
-    <path class="trail-line trail-line-pearl trail-line-${kind}" d="${d}"></path>
-    <path class="trail-line trail-line-glint trail-line-${kind}" d="${d}"></path>
-    <path class="trail-line trail-line-foot trail-line-foot-left trail-line-${kind}" d="${d}"></path>
-    <path class="trail-line trail-line-foot trail-line-foot-right trail-line-${kind}" d="${d}"></path>
-    <path class="trail-line trail-line-foot trail-line-foot-toe trail-line-${kind}" d="${d}"></path>
+  const layers = trailArtLayers(activeDirections, level).map(({ src, rotation, layerClass }) => `
+    <img class="trail-art ${layerClass}" src="${src}" alt="" draggable="false" loading="lazy" decoding="async" style="--trail-rotation: ${rotation}deg;" />
   `).join("");
 
   const markup = `
-    <svg class="trail trail-svg trail-${level} ${shapeClass} ${directionClasses}" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      ${strokes}
-    </svg>
+    <span class="trail trail-art-wrap trail-${level} ${shapeClass} ${directionClasses}" aria-hidden="true">
+      ${layers}
+    </span>
   `;
   trailMarkupCache.set(cacheKey, markup);
   return markup;
+}
+
+function straightTrailImage(level) {
+  if (level === "weak") return TRAIL_IMAGES.start;
+  if (level === "light" || level === "medium") return TRAIL_IMAGES.middle;
+  return TRAIL_IMAGES.max;
+}
+
+function trailArtLayers(directions, level) {
+  const has = (direction) => directions.includes(direction);
+  const layer = (src, rotation = 0, layerClass = "trail-art-main") => ({ src, rotation, layerClass });
+  const straight = straightTrailImage(level);
+
+  if (directions.length >= 4) {
+    return [layer(TRAIL_IMAGES.cross)];
+  }
+
+  if (directions.length === 3) {
+    const missing = TRAIL_DIRECTIONS.find((direction) => !has(direction));
+    const rotationByMissingDirection = {
+      up: 0,
+      down: 180,
+      left: -90,
+      right: 90,
+    };
+    return [layer(TRAIL_IMAGES.tDown, rotationByMissingDirection[missing] || 0)];
+  }
+
+  if (has("left") && has("right")) return [layer(straight)];
+  if (has("up") && has("down")) return [layer(straight, 90)];
+
+  if (directions.length === 2) {
+    return [
+      layer(straight, 0, "trail-art-turn-horizontal"),
+      layer(straight, 90, "trail-art-turn-vertical"),
+    ];
+  }
+
+  if (has("up") || has("down")) return [layer(straight, 90)];
+  return [layer(straight)];
 }
 
 function trailPaths(directions) {

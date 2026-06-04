@@ -5351,6 +5351,51 @@ dt {
   mix-blend-mode: normal;
 }
 
+.trail-art-wrap {
+  background: none;
+  box-shadow: none;
+  display: block;
+  filter: none;
+  inset: 0;
+  mix-blend-mode: normal;
+  opacity: 1;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.trail-art {
+  display: block;
+  height: 100%;
+  inset: 0;
+  max-width: none;
+  object-fit: cover;
+  pointer-events: none;
+  position: absolute;
+  transform: rotate(var(--trail-rotation, 0deg));
+  transform-origin: center;
+  width: 100%;
+}
+
+.trail-art-wrap.trail-weak {
+  opacity: 0.72;
+}
+
+.trail-art-wrap.trail-light {
+  opacity: 0.86;
+}
+
+.trail-art-wrap.trail-medium,
+.trail-art-wrap.trail-strong {
+  opacity: 1;
+}
+
+.trail-art-turn-horizontal,
+.trail-art-turn-vertical {
+  opacity: 0.9;
+}
+
 .trail {
   --trail-core: rgba(255, 239, 194, 0.8);
   --trail-edge: rgba(205, 222, 128, 0.54);
@@ -5846,14 +5891,14 @@ dt {
     0 22px 58px rgba(76, 130, 200, 0.22),
     0 0 48px rgba(255, 255, 255, 0.55);
   display: block;
-  height: min(92vh, 920px);
+  height: auto;
   margin: 0;
-  max-height: 92svh;
-  max-width: min(92vw, 614px);
+  max-height: 86svh;
+  max-width: 560px;
   overflow: hidden;
   padding: 0;
   position: relative;
-  width: auto;
+  width: min(78vw, 560px);
 }
 
 .shell-home-room::before,
@@ -6003,8 +6048,10 @@ dt {
 
   .shell-home-room {
     display: block;
-    height: min(92vh, 92svh);
-    max-width: 92vw;
+    height: auto;
+    max-height: 82svh;
+    max-width: 82vw;
+    width: 82vw;
   }
 
   .shell-close {
@@ -6039,11 +6086,13 @@ dt {
   }
 }
 
-/* 1.2.7 loading screen: full-bleed water art with glints moving toward the player */
+/* 1.2.7 loading screen: instant CSS water with uneven glints */
 .loader {
   background:
-    linear-gradient(180deg, rgba(221, 247, 255, 0.18), rgba(174, 231, 255, 0.08)),
-    url("assets/backgrounds/loading-water-gag.png") center center / cover no-repeat,
+    radial-gradient(ellipse at 50% 18%, rgba(255, 255, 255, 0.58), transparent 34%),
+    radial-gradient(ellipse at 18% 82%, rgba(220, 203, 255, 0.26), transparent 30%),
+    radial-gradient(ellipse at 78% 78%, rgba(105, 213, 255, 0.28), transparent 34%),
+    linear-gradient(180deg, #ddf7ff 0%, #aee7ff 45%, #69d5ff 100%),
     #dff7ff;
   padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
 }
@@ -6063,7 +6112,11 @@ dt {
 }
 
 .loader-scene {
-  background: url("assets/backgrounds/loading-water-gag.png") center center / cover no-repeat;
+  background:
+    radial-gradient(ellipse at 50% 16%, rgba(255, 255, 255, 0.5), transparent 28%),
+    radial-gradient(ellipse at 28% 64%, rgba(220, 203, 255, 0.18), transparent 28%),
+    radial-gradient(ellipse at 72% 72%, rgba(105, 213, 255, 0.18), transparent 32%),
+    linear-gradient(180deg, #ddf7ff 0%, #aee7ff 42%, #69d5ff 100%);
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -6076,8 +6129,10 @@ dt {
 
 .loader-scene::before {
   background:
-    radial-gradient(ellipse at 50% 16%, rgba(255, 255, 255, 0.42), transparent 32%),
-    linear-gradient(180deg, rgba(221, 247, 255, 0.1), rgba(105, 213, 255, 0.08) 66%, rgba(255, 255, 255, 0.18));
+    radial-gradient(ellipse at 18% 22%, rgba(255, 255, 255, 0.42), transparent 18%),
+    radial-gradient(ellipse at 78% 34%, rgba(255, 255, 255, 0.26), transparent 15%),
+    radial-gradient(ellipse at 38% 86%, rgba(255, 250, 242, 0.26), transparent 22%),
+    linear-gradient(180deg, rgba(221, 247, 255, 0.16), rgba(105, 213, 255, 0.06) 66%, rgba(255, 255, 255, 0.16));
   content: "";
   inset: 0;
   pointer-events: none;
@@ -6086,23 +6141,23 @@ dt {
 }
 
 .loader-scene::after {
-  animation: loaderWaterGlints 3.2s ease-in-out infinite;
+  animation: loaderWaterGlints 4.8s ease-in-out infinite;
   background:
-    repeating-linear-gradient(
-      178deg,
-      transparent 0 9%,
-      rgba(255, 255, 255, 0.58) 10% 10.8%,
-      rgba(174, 231, 255, 0.24) 11.5% 12.4%,
-      transparent 13.8% 22%
-    ),
-    radial-gradient(ellipse at 48% 24%, rgba(255, 255, 255, 0.62), transparent 18%),
-    radial-gradient(ellipse at 58% 48%, rgba(255, 255, 255, 0.56), transparent 20%),
-    radial-gradient(ellipse at 45% 76%, rgba(255, 255, 255, 0.7), transparent 22%);
+    radial-gradient(ellipse at 16% 18%, rgba(255, 255, 255, 0.66) 0 1.8%, transparent 8%),
+    radial-gradient(ellipse at 54% 22%, rgba(255, 255, 255, 0.5) 0 1.2%, transparent 7%),
+    radial-gradient(ellipse at 82% 31%, rgba(255, 255, 255, 0.6) 0 1.6%, transparent 8%),
+    radial-gradient(ellipse at 28% 48%, rgba(255, 255, 255, 0.48) 0 1.4%, transparent 7%),
+    radial-gradient(ellipse at 68% 61%, rgba(255, 250, 242, 0.62) 0 1.8%, transparent 9%),
+    radial-gradient(ellipse at 42% 76%, rgba(255, 255, 255, 0.52) 0 1.2%, transparent 7%),
+    linear-gradient(103deg, transparent 9%, rgba(255, 255, 255, 0.36) 10.5%, transparent 13% 100%),
+    linear-gradient(78deg, transparent 22%, rgba(221, 247, 255, 0.42) 24%, transparent 27% 100%),
+    linear-gradient(116deg, transparent 42%, rgba(255, 255, 255, 0.32) 43.5%, transparent 46.5% 100%),
+    linear-gradient(86deg, transparent 65%, rgba(255, 250, 242, 0.35) 66.2%, transparent 69% 100%);
   content: "";
-  height: 145%;
-  inset: -58% -18% auto;
+  height: 165%;
+  inset: -76% -28% auto;
   mix-blend-mode: screen;
-  opacity: 0.8;
+  opacity: 0.68;
   pointer-events: none;
   position: absolute;
   transform-origin: 50% 0;
@@ -6168,17 +6223,17 @@ dt {
 
 @keyframes loaderWaterGlints {
   0% {
-    opacity: 0.18;
-    transform: translateY(-12%) scale(0.76);
+    opacity: 0.16;
+    transform: translate3d(-4%, -6%, 0) scale(0.86) rotate(-2deg);
   }
 
-  36% {
-    opacity: 0.9;
+  42% {
+    opacity: 0.72;
   }
 
   100% {
     opacity: 0.12;
-    transform: translateY(74%) scale(1.24);
+    transform: translate3d(5%, 72%, 0) scale(1.18) rotate(2deg);
   }
 }
 
