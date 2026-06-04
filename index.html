@@ -90,7 +90,7 @@
       <section class="stats" aria-label="Счетчики">
         <article class="stat stat-steps inactive">
           <span>Шаги сегодня</span>
-          <strong id="stepsToday">0</strong>
+          <input id="stepsInput" class="step-input" type="text" inputmode="numeric" autocomplete="off" aria-label="Шаги сегодня" value="0" readonly />
         </article>
         <article class="stat accent stat-coins">
           <span>Тяптяпы</span>
@@ -107,15 +107,6 @@
           </p>
         </div>
         <button id="grantStepsButton" type="button">Подключить Здоровье</button>
-      </section>
-
-      <section class="step-panel compact" id="stepsPanel" hidden>
-        <label for="stepsInput">Шаги за сегодня</label>
-        <div class="input-row">
-          <input id="stepsInput" type="number" min="0" step="1" inputmode="numeric" placeholder="Например, 7420" />
-          <button id="saveStepsButton" type="button">Обновить</button>
-        </div>
-        <p class="hint" id="stepStatus">Данные готовы.</p>
       </section>
 
       <section class="world-shell" aria-label="Игровой мир">

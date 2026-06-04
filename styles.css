@@ -261,12 +261,14 @@ button:hover {
 }
 
 .stat strong,
-.coin-input {
+.coin-input,
+.step-input {
   color: #315f9d;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.76);
 }
 
-.coin-input:focus {
+.coin-input:focus,
+.step-input:focus {
   outline-color: rgba(126, 182, 232, 0.72);
 }
 
@@ -1892,7 +1894,8 @@ h2 {
   opacity: 0;
 }
 
-.coin-input {
+.coin-input,
+.step-input {
   background: transparent;
   border: 0;
   color: #5a3219;
@@ -1909,7 +1912,24 @@ h2 {
   width: 10.5ch;
 }
 
-.coin-input:focus {
+.step-input {
+  color: #315985;
+  text-align: center;
+  width: 8.5ch;
+}
+
+.step-input[readonly] {
+  cursor: default;
+  pointer-events: none;
+}
+
+.step-input.editable {
+  cursor: text;
+  pointer-events: auto;
+}
+
+.coin-input:focus,
+.step-input:focus {
   outline: 3px solid rgba(240, 180, 63, 0.55);
   outline-offset: 4px;
 }
@@ -3874,13 +3894,15 @@ dd {
   }
 
   .stat strong,
-  .coin-input {
+  .coin-input,
+  .step-input {
     font-size: clamp(0.78rem, 4.2vw, 1.05rem);
     min-width: 0;
     width: 100%;
   }
 
-  .coin-input {
+  .coin-input,
+  .step-input {
     width: 100%;
   }
 
@@ -4443,12 +4465,14 @@ input {
 
 .stat span,
 .stat strong,
-.coin-input {
+.coin-input,
+.step-input {
   color: #315985;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.78);
 }
 
-.coin-input:focus {
+.coin-input:focus,
+.step-input:focus {
   outline: 3px solid rgba(126, 182, 232, 0.5);
 }
 
@@ -4781,7 +4805,8 @@ dt {
   }
 
   .stat strong,
-  .coin-input {
+  .coin-input,
+  .step-input {
     font-size: clamp(1rem, 5vw, 1.34rem);
   }
 
@@ -4883,13 +4908,15 @@ dt {
   max-width: 86%;
 }
 
-.coin-input {
+.coin-input,
+.step-input {
   caret-color: #315985;
   cursor: text;
   pointer-events: auto;
 }
 
-.coin-input:not([readonly]) {
+.coin-input:not([readonly]),
+.step-input.editable {
   border-radius: 10px;
   outline-offset: 4px;
 }
@@ -5300,12 +5327,14 @@ dt {
 }
 
 .stat,
-.coin-input {
+.coin-input,
+.step-input {
   box-sizing: border-box;
 }
 
 .stat strong,
-.coin-input {
+.coin-input,
+.step-input {
   max-width: 100%;
   min-width: 0;
   overflow: visible;
@@ -5314,6 +5343,10 @@ dt {
 
 .coin-input {
   text-align: left;
+}
+
+.step-input {
+  text-align: center;
 }
 
 .duck {
@@ -5655,7 +5688,8 @@ dt {
   }
 
   .stat strong,
-  .coin-input {
+  .coin-input,
+  .step-input {
     font-size: clamp(0.84rem, 3.85vw, 1.18rem);
     line-height: 1;
     min-width: 0;
@@ -5786,7 +5820,8 @@ dt {
   }
 
   .stat strong,
-  .coin-input {
+  .coin-input,
+  .step-input {
     font-size: clamp(0.78rem, 3.7vw, 0.98rem);
   }
 

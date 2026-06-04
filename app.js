@@ -321,7 +321,6 @@ const elements = {
   stepSourceLayer: document.querySelector("#stepSourceLayer"),
   stepsInput: document.querySelector("#stepsInput"),
   stepsPanel: document.querySelector("#stepsPanel"),
-  stepsToday: document.querySelector("#stepsToday"),
   tutorialKicker: document.querySelector("#tutorialKicker"),
   tutorialLayer: document.querySelector("#tutorialLayer"),
   tutorialNextButton: document.querySelector("#tutorialNextButton"),
@@ -2064,13 +2063,18 @@ function renderStepSourceChoice() {
 
   const hasNativeSteps = Boolean(nativeStepProvider());
   if (elements.deviceStepsButton) {
-    elements.deviceStepsButton.disabled = false;
+    elements.deviceStepsButton.disabled = !hasNativeSteps;
+    elements.deviceStepsButton.querySelector("strong").textContent = hasNativeSteps
+      ? "Дать доступ к шагам"
+      : "Недоступно в Safari";
     elements.deviceStepsButton.querySelector("span").textContent = hasNativeSteps
       ? "Подключит шаги с этого устройства."
-      : "Если мост шагов недоступен, Тяпа предложит демо.";
+      : "Сайт не может читать Apple Health напрямую. Для проверки выбери демо.";
   }
   if (elements.stepSourceHint) {
-    elements.stepSourceHint.textContent = "Это можно поменять позже в настройках.";
+    elements.stepSourceHint.textContent = hasNativeSteps
+      ? "Это можно поменять позже в настройках."
+      : "Настоящие шаги появятся в iPhone-приложении или TestFlight-сборке.";
   }
 }
 
@@ -2116,9 +2120,9 @@ async function chooseStepSource(source, options = {}) {
 
   const provider = nativeStepProvider();
   if (!provider) {
-    setMessage("На этом устройстве доступ к шагам пока не найден. Включи демо-режим для проверки.");
+    setMessage("В Safari сайт не может читать Apple Health напрямую. Включи демо-режим для проверки.");
     if (elements.stepSourceHint && needsStepSourceChoice()) {
-      elements.stepSourceHint.textContent = "Похоже, сейчас открыт браузер без моста шагов. Демо подойдет для теста.";
+      elements.stepSourceHint.textContent = "Для настоящих шагов нужна iPhone-сборка с HealthKit. Демо подойдет для теста сайта.";
     }
     if (fromSettings) render();
     playSfx("moveDenied");
@@ -2307,7 +2311,10 @@ async function grantSteps(options = {}) {
 }
 
 function updateSteps() {
-  const nextSteps = Math.max(0, Math.floor(Number(elements.stepsInput.value) || 0));
+  if (state.stepSource !== STEP_SOURCE_DEMO || !elements.stepsInput) return;
+
+  const rawSteps = String(elements.stepsInput.value || "").replace(/[^\d]/g, "");
+  const nextSteps = Math.max(0, Math.floor(Number(rawSteps) || 0));
   const settlementDate = new Date();
   const settlementStart = settlementStartFor(settlementDate).toISOString();
   const settlementEnd = settlementDate.toISOString();
@@ -3319,7 +3326,6 @@ function renderSettingsStats() {
 
 function render() {
   clampCurrentViewCenter();
-  elements.stepsToday.innerHTML = formatFixedCounter(state.stepsToday);
   elements.coins.value = formatCoinsForDisplay(state.coins);
   elements.positionLabel.textContent = coordLabel(state.position.x, state.position.y);
   elements.viewLabel.textContent = `Окно: ${coordLabel(state.viewCenter.x, state.viewCenter.y)} / мир ${WORLD_SIZE} x ${WORLD_SIZE}`;
@@ -3337,14 +3343,29 @@ function render() {
           ? "ожидает доступа"
           : "мост шагов не найден";
   elements.permissionPanel.hidden = !isDeviceSteps || state.stepsPermission === "granted" || !provider;
-  elements.stepsPanel.hidden = !isDemoSteps;
+  if (elements.stepsPanel) elements.stepsPanel.hidden = true;
   elements.grantStepsButton.textContent = "Подключить шаги";
   elements.deviceSourceToggle?.setAttribute("aria-pressed", String(isDeviceSteps));
   elements.demoSourceToggle?.setAttribute("aria-pressed", String(isDemoSteps));
-  elements.stepsInput.value = state.stepsToday || "";
-  elements.stepStatus.textContent = state.stepsToday === 0
-    ? "Сегодня шагов пока 0."
-    : "Введите число больше текущего счетчика, чтобы начислить разницу.";
+  if (elements.deviceSourceToggle) {
+    elements.deviceSourceToggle.disabled = !hasNativeSteps;
+    elements.deviceSourceToggle.title = hasNativeSteps
+      ? "Читать шаги с устройства"
+      : "В Safari сайт не может читать Apple Health напрямую";
+  }
+  if (elements.stepsInput) {
+    elements.stepsInput.readOnly = !isDemoSteps;
+    elements.stepsInput.classList.toggle("editable", isDemoSteps);
+    elements.stepsInput.title = isDemoSteps ? "Ввести шаги за сегодня" : "Шаги с устройства";
+    if (document.activeElement !== elements.stepsInput) {
+      elements.stepsInput.value = String(state.stepsToday || 0);
+    }
+  }
+  if (elements.stepStatus) {
+    elements.stepStatus.textContent = state.stepsToday === 0
+      ? "Сегодня шагов пока 0."
+      : "Введите число больше текущего счетчика, чтобы начислить разницу.";
+  }
   if (elements.flightLevel) {
     elements.flightLevel.textContent = formatNumber(flightLevel());
   }
@@ -3500,7 +3521,7 @@ function handleMapTap(target) {
 }
 
 elements.grantStepsButton.addEventListener("click", grantSteps);
-elements.saveStepsButton.addEventListener("click", updateSteps);
+elements.saveStepsButton?.addEventListener("click", updateSteps);
 elements.restButton.addEventListener("click", toggleRest);
 elements.seedButton?.addEventListener("click", toggleSeedMode);
 elements.seedCancelButton?.addEventListener("click", () => cancelSeedMode());
@@ -3536,6 +3557,25 @@ elements.coins?.addEventListener("keydown", (event) => {
   }
 });
 elements.coins?.addEventListener("blur", commitCoinsEdit);
+elements.stepsInput?.addEventListener("focus", () => {
+  if (state.stepSource !== STEP_SOURCE_DEMO) return;
+  elements.stepsInput.select();
+});
+elements.stepsInput?.addEventListener("keydown", (event) => {
+  if (state.stepSource !== STEP_SOURCE_DEMO) return;
+
+  if (event.key === "Enter") {
+    event.preventDefault();
+    elements.stepsInput.blur();
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    render();
+    elements.stepsInput.blur();
+  }
+});
+elements.stepsInput?.addEventListener("blur", updateSteps);
 elements.sfxToggle?.addEventListener("click", toggleSfx);
 elements.musicToggle?.addEventListener("click", toggleMusic);
 elements.tutorialNextButton?.addEventListener("click", advanceTutorialCard);
