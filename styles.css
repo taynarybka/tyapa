@@ -344,15 +344,11 @@ input {
 }
 
 .tile::after {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.22), transparent 26%, transparent 76%, rgba(126, 182, 232, 0.12)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 30%, transparent 84%, rgba(183, 184, 240, 0.14));
+  display: none;
 }
 
 .tile.current {
-  filter:
-    drop-shadow(0 14px 20px rgba(76, 130, 200, 0.24))
-    saturate(1.06);
+  filter: none;
 }
 
 .zoom-controls {
@@ -2720,11 +2716,11 @@ input {
 }
 
 .tile.current {
-  filter: drop-shadow(0 12px 16px rgba(72, 87, 62, 0.24));
+  filter: none;
 }
 
 .tile.current::after {
-  background: rgba(255, 255, 255, 0.03);
+  display: none;
 }
 
 .tile.openable {
@@ -2773,15 +2769,15 @@ input {
 
 .tile-art {
   display: block;
-  height: 112%;
+  height: 100%;
   image-rendering: auto;
-  left: -6%;
+  left: 0;
   max-width: none;
   object-fit: cover;
   pointer-events: none;
   position: absolute;
-  top: -6%;
-  width: 112%;
+  top: 0;
+  width: 100%;
   z-index: 0;
 }
 
@@ -4620,23 +4616,12 @@ dt {
     0 18px 42px rgba(76, 130, 200, 0.12);
 }
 
-.tile {
-  filter: saturate(1.04);
-}
-
 .tile::after {
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  border-radius: 12px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.42),
-    inset 0 -6px 16px rgba(49, 95, 157, 0.06);
+  display: none;
 }
 
 .tile.current::after {
-  border-color: rgba(255, 217, 106, 0.98);
-  box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.64),
-    0 0 24px rgba(255, 217, 106, 0.44);
+  display: none;
 }
 
 .trail {
@@ -5358,12 +5343,6 @@ dt {
   contain: layout paint style;
 }
 
-.tile.water .tile-art,
-.tile.forest .tile-art {
-  transform: rotate(var(--tile-rotation, 0deg)) scale(1.1) scaleX(var(--tile-flip, 1));
-  transform-origin: center;
-}
-
 .trail,
 .trail-svg {
   background: none;
@@ -5867,10 +5846,10 @@ dt {
     0 22px 58px rgba(76, 130, 200, 0.22),
     0 0 48px rgba(255, 255, 255, 0.55);
   display: block;
-  height: min(96vh, 980px);
+  height: min(92vh, 920px);
   margin: 0;
-  max-height: 96vh;
-  max-width: min(96vw, 654px);
+  max-height: 92svh;
+  max-width: min(92vw, 614px);
   overflow: hidden;
   padding: 0;
   position: relative;
@@ -6019,24 +5998,19 @@ dt {
 
 @media (max-width: 640px) {
   .shell-home {
-    padding: 6px;
+    padding: 8px;
   }
 
   .shell-home-room {
     display: block;
-    height: min(98vh, 98svh);
-    max-width: 100vw;
+    height: min(92vh, 92svh);
+    max-width: 92vw;
   }
 
   .shell-close {
-    left: 8%;
-    top: 5.5%;
-    width: 42px;
-  }
-
-  .shell-room-title {
-    top: 28.5%;
-    width: 44%;
+    left: 7.5%;
+    top: 5%;
+    width: 38px;
   }
 
   .shell-collection {

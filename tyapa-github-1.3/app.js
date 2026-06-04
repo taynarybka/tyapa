@@ -1694,43 +1694,15 @@ function randomTileType(x, y) {
 }
 
 function biomeBlendLayers(cell) {
-  if (!cell || state.viewSize >= 9) return "";
-
-  return BIOME_BLEND_DIRECTIONS.map(([name, dx, dy]) => {
-    const neighbor = state.cells[keyOf(cell.x + dx, cell.y + dy)];
-    if (!neighbor || neighbor.type === cell.type) return "";
-    if (neighbor.type === "water" && cell.type !== "water") return "";
-
-    return `<span class="biome-blend blend-${name} blend-from-${cell.type} blend-to-${neighbor.type}" aria-hidden="true"></span>`;
-  }).join("");
+  return "";
 }
 
 function biomeDetailLayers(cell) {
-  if (!cell) return "";
-
-  return BIOME_BLEND_DIRECTIONS.map(([name, dx, dy], index) => {
-    const neighbor = state.cells[keyOf(cell.x + dx, cell.y + dy)];
-    if (!neighbor || neighbor.type === cell.type || hash2d(cell.x, cell.y, 900 + index) < 0.36) return "";
-
-    const pair = [cell.type, neighbor.type].sort().join("-");
-    if (pair === "field-water" || pair === "forest-water") {
-      return `<span class="biome-detail detail-${name} detail-reeds" aria-hidden="true"></span>`;
-    }
-
-    if (pair === "field-forest") {
-      return `<span class="biome-detail detail-${name} detail-shrubs" aria-hidden="true"></span>`;
-    }
-
-    return "";
-  }).join("");
+  return "";
 }
 
 function biomeSurfaceLayer(cell) {
-  if (!cell || (cell.type !== "water" && cell.type !== "forest")) return "";
-
-  const variant = Math.floor(hash2d(cell.x, cell.y, 1217) * 4) + 1;
-  const drift = Math.floor(hash2d(cell.x, cell.y, 1218) * 3) + 1;
-  return `<span class="biome-surface biome-surface-${cell.type} biome-variant-${variant} biome-drift-${drift}" aria-hidden="true"></span>`;
+  return "";
 }
 
 function setMessage(text) {
@@ -3497,8 +3469,6 @@ function handleMapTap(target) {
 
   const x = Number(cellTile.dataset.cellX);
   const y = Number(cellTile.dataset.cellY);
-  if (flyTyapaTo(x, y)) return true;
-
   const dx = x - state.position.x;
   const dy = y - state.position.y;
   const directionByDelta = {
@@ -3511,6 +3481,8 @@ function handleMapTap(target) {
 
   if (direction) {
     moveTyapa(direction);
+  } else if (flyTyapaTo(x, y)) {
+    return true;
   } else {
     state.viewCenter = clampViewCenterForSize({ x, y }, state.viewSize);
     render();
