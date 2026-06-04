@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Тяпа 1.2</title>
+    <link rel="icon" type="image/png" href="assets/tyapa-hidden.png" />
+    <link rel="preload" as="image" href="assets/backgrounds/loading-water-gag.png" />
+    <link rel="stylesheet" href="styles.css?v=1.2.7" />
+  </head>
+  <body class="loading">
+    <div class="loader" id="loader" role="status" aria-live="polite">
+      <div class="loader-card">
+        <div class="loader-scene" aria-hidden="true">
+          <span class="loader-cloud loader-cloud-a"></span>
+          <span class="loader-cloud loader-cloud-b"></span>
+          <span class="loader-sun"></span>
+          <span class="loader-hill loader-hill-back"></span>
+          <span class="loader-hill loader-hill-front"></span>
+          <span class="loader-path"></span>
+          <span class="loader-reed loader-reed-a"></span>
+          <span class="loader-reed loader-reed-b"></span>
+          <span class="loader-leaf loader-leaf-a"></span>
+          <span class="loader-leaf loader-leaf-b"></span>
+          <div class="loader-egg">
+            <img src="assets/tyapa-hidden.png" alt="" draggable="false" />
+            <span class="loader-egg-shine"></span>
+          </div>
+          <div class="loader-trail">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+        <div class="loader-copy">
+          <p class="loader-title">Тяпа собирает тропинку</p>
+          <strong class="loader-progress" id="loaderProgress">0%</strong>
+          <span class="loader-bar" aria-hidden="true"><span id="loaderBarFill"></span></span>
+        </div>
+      </div>
+    </div>
+    <section class="intro-cutscene" id="introCutscene" aria-label="Первое пробуждение Тяпы" hidden>
+      <div class="intro-sky" aria-hidden="true">
+        <span class="intro-cloud intro-cloud-a"></span>
+        <span class="intro-cloud intro-cloud-b"></span>
+        <span class="intro-pollen intro-pollen-a"></span>
+        <span class="intro-pollen intro-pollen-b"></span>
+        <span class="intro-pollen intro-pollen-c"></span>
+      </div>
+      <div class="intro-stage" aria-hidden="true">
+        <span class="intro-backlight"></span>
+        <span class="intro-ground"></span>
+        <span class="intro-nest"></span>
+        <div class="intro-egg">
+          <span class="intro-shadow"></span>
+          <span class="intro-egg-whole"></span>
+          <span class="intro-egg-top"></span>
+          <span class="intro-crack-glow"></span>
+          <span class="intro-crack-line"></span>
+          <span class="intro-impact"></span>
+          <span class="intro-leaf"></span>
+          <img class="intro-tyapa" src="assets/tyapa-hidden.png" alt="" draggable="false" />
+        </div>
+      </div>
+      <button class="intro-skip" id="introSkipButton" type="button">Пропустить</button>
+    </section>
+    <main class="app">
+      <section class="topbar" aria-label="Панель состояния">
+        <div>
+          <p class="eyebrow">уютный шагомер</p>
+          <h1>Тяпа</h1>
+        </div>
+        <div class="top-actions">
+          <button class="music-switch" id="soundButton" type="button" aria-label="Музыка" aria-pressed="false">
+            <span class="switch-icon" aria-hidden="true">♪</span>
+            <span class="switch-copy">Музыка</span>
+            <span class="switch-state">Выкл</span>
+          </button>
+          <button class="icon-button" id="settingsButton" type="button" aria-label="Настройки" title="Настройки">
+            ⚙
+          </button>
+        </div>
+      </section>
+
+      <section class="stats" aria-label="Счетчики">
+        <article class="stat stat-steps inactive">
+          <span>Шаги сегодня</span>
+          <strong id="stepsToday">0</strong>
+        </article>
+        <article class="stat accent stat-coins">
+          <span>Тяптяпы</span>
+          <input id="coins" class="coin-input" type="text" inputmode="numeric" autocomplete="off" aria-label="Тяптяпы" value="0" />
+        </article>
+      </section>
+
+      <section class="step-panel" id="permissionPanel" hidden>
+        <div>
+          <h2>Доступ к шагам</h2>
+          <p>
+            Подключение проверяет шаги за сегодня и последние семь дней. Если системный мост здоровья недоступен,
+            включится тестовое подтверждение для демо.
+          </p>
+        </div>
+        <button id="grantStepsButton" type="button">Подключить Здоровье</button>
+      </section>
+
+      <section class="step-panel compact" id="stepsPanel" hidden>
+        <label for="stepsInput">Шаги за сегодня</label>
+        <div class="input-row">
+          <input id="stepsInput" type="number" min="0" step="1" inputmode="numeric" placeholder="Например, 7420" />
+          <button id="saveStepsButton" type="button">Обновить</button>
+        </div>
+        <p class="hint" id="stepStatus">Данные готовы.</p>
+      </section>
+
+      <section class="world-shell" aria-label="Игровой мир">
+        <div class="world-header" hidden>
+          <div>
+            <h2>Карта мира</h2>
+            <p id="positionLabel">0:0</p>
+          </div>
+          <button id="restButton" class="secondary" type="button">Скорлупка</button>
+        </div>
+
+        <button id="shellButton" class="shell-title-button" type="button" aria-label="Открыть скорлупку" aria-controls="shellHome" aria-expanded="false">
+          <span>Скорлупка</span>
+        </button>
+
+        <div class="map-stage">
+          <div class="map" id="map" aria-label="Карта 7 на 7"></div>
+          <div class="zoom-controls" aria-label="Масштаб карты">
+            <button id="zoomInButton" type="button" aria-label="Приблизить" title="Приблизить">+</button>
+            <button id="zoomOutButton" type="button" aria-label="Отдалить" title="Отдалить">−</button>
+          </div>
+          <button id="seedCancelButton" class="seed-cancel-button" type="button" hidden aria-label="Выйти из режима посева" title="Выйти из режима посева">
+            <span class="seed-cancel-icon" aria-hidden="true">×</span>
+            <span>Готово</span>
+          </button>
+          <section class="shell-home" id="shellHome" aria-label="Домик в скорлупке" hidden>
+            <div class="shell-home-shell" aria-hidden="true">
+              <span class="shell-crack shell-crack-left"></span>
+              <span class="shell-crack shell-crack-right"></span>
+            </div>
+            <div class="shell-home-room">
+              <div class="shell-room-glow" aria-hidden="true"></div>
+              <button class="shell-close" id="shellCloseButton" type="button" aria-label="Вернуться к карте" title="Вернуться к карте">
+                <span aria-hidden="true">←</span>
+              </button>
+              <div class="shell-room-title" aria-hidden="true">
+                <span>Домик Тяпы</span>
+              </div>
+              <div class="shell-nest" aria-hidden="true">
+                <img src="assets/tyapa-hidden.png" alt="" draggable="false" />
+              </div>
+              <div class="shell-seed-action">
+                <button id="seedButton" class="seed-button" type="button" aria-pressed="false" title="&#1055;&#1086;&#1089;&#1077;&#1103;&#1090;&#1100; &#1089;&#1077;&#1084;&#1077;&#1085;&#1072; &#1085;&#1072; &#1090;&#1088;&#1086;&#1087;&#1080;&#1085;&#1082;&#1077;">
+                  <span class="seed-icon" aria-hidden="true"></span>
+                  <span class="seed-label">&#1055;&#1086;&#1089;&#1077;&#1103;&#1090;&#1100;</span>
+                  <span class="seed-price"><span id="seedCost">5</span> &#1090;&#1103;&#1087;</span>
+                </button>
+              </div>
+              <div class="shell-flight-skill">
+                <button id="flightSkillButton" class="shell-skill-button" type="button" title="&#1055;&#1086;&#1083;&#1077;&#1090;">
+                  <span class="skill-mark" aria-hidden="true"></span>
+                  <span class="skill-name">&#1055;&#1086;&#1083;&#1077;&#1090;</span>
+                  <strong>&#1091;&#1088;. <span id="flightLevel">0</span></strong>
+                </button>
+              </div>
+              <section class="shell-collection" aria-label="Полочка с находками" aria-disabled="true">
+                <h3><span aria-hidden="true">✦</span> Находки</h3>
+                <div class="shell-items" id="shellItems"></div>
+              </section>
+              <section class="shell-diary" aria-label="Дневник Тяпы" aria-disabled="true">
+                <h3><span aria-hidden="true">▤</span> Дневник</h3>
+                <ol id="shellDiaryEntries"></ol>
+              </section>
+            </div>
+          </section>
+        </div>
+        <p class="view-label" id="viewLabel" hidden>Окно: 0:0 / мир 365 x 365</p>
+
+        <div class="controls" aria-label="Перемещение" hidden>
+          <button class="joy joy-up" data-move="up" type="button" aria-label="Вверх">↑</button>
+          <button class="joy joy-left" data-move="left" type="button" aria-label="Влево">←</button>
+          <span class="joy-center" aria-hidden="true"></span>
+          <button class="joy joy-right" data-move="right" type="button" aria-label="Вправо">→</button>
+          <button class="joy joy-down" data-move="down" type="button" aria-label="Вниз">↓</button>
+        </div>
+      </section>
+
+      <p class="message" id="message" role="status">Тяпа ждет первых шагов.</p>
+
+      <section class="tutorial-layer" id="tutorialLayer" hidden>
+        <article class="tutorial-card" role="dialog" aria-live="polite" aria-labelledby="tutorialTitle">
+          <span class="tutorial-kicker" id="tutorialKicker">Обучение</span>
+          <h2 id="tutorialTitle">Первый шажок</h2>
+          <p id="tutorialText">Тяпа покажет самое важное.</p>
+          <div class="tutorial-actions">
+            <button class="tutorial-skip" id="tutorialSkipButton" type="button">Пропустить</button>
+            <button id="tutorialNextButton" type="button">Дальше</button>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <dialog id="settingsDialog">
+      <form method="dialog" class="settings">
+        <div class="dialog-head">
+          <h2>Настройки</h2>
+          <button class="icon-button" value="close" aria-label="Закрыть" title="Закрыть">×</button>
+        </div>
+        <div class="settings-tabs" role="tablist" aria-label="Разделы настроек">
+          <button id="settingsGeneralTab" class="settings-tab" type="button" role="tab" aria-selected="true" aria-controls="settingsGeneralPanel">Настройки</button>
+          <button id="settingsStatsTab" class="settings-tab" type="button" role="tab" aria-selected="false" aria-controls="settingsStatsPanel">Статистика</button>
+        </div>
+        <section id="settingsGeneralPanel" class="settings-panel" role="tabpanel" aria-labelledby="settingsGeneralTab">
+          <dl class="settings-list">
+            <div class="audio-settings">
+              <dt>Звук</dt>
+              <dd>
+                <button id="sfxToggle" class="settings-toggle" type="button" aria-pressed="true">Звуки: вкл</button>
+                <button id="musicToggle" class="settings-toggle" type="button" aria-pressed="false">Музыка: выкл</button>
+              </dd>
+            </div>
+            <div>
+              <dt>Доступ к шагам</dt>
+              <dd id="permissionStatus">не выдан</dd>
+            </div>
+            <div>
+              <dt>Размер мира</dt>
+              <dd>365 x 365</dd>
+            </div>
+            <div>
+              <dt>Версия</dt>
+              <dd>1.2 прототип</dd>
+            </div>
+          </dl>
+        </section>
+        <section id="settingsStatsPanel" class="settings-panel" role="tabpanel" aria-labelledby="settingsStatsTab" hidden>
+          <dl class="settings-list statistics-list">
+            <div>
+              <dt>Тяптяпов сейчас</dt>
+              <dd id="statCoinsCurrent">0</dd>
+            </div>
+            <div>
+              <dt>Всего тяптяпов</dt>
+              <dd id="statTotalTyaptyaps">0</dd>
+            </div>
+            <div>
+              <dt>На открытие клеток</dt>
+              <dd id="statSpentOpenCells">0</dd>
+            </div>
+            <div>
+              <dt>На полеты</dt>
+              <dd id="statSpentFlights">0</dd>
+            </div>
+            <div>
+              <dt>На переходы</dt>
+              <dd id="statSpentWalking">0</dd>
+            </div>
+            <div>
+              <dt>На посев</dt>
+              <dd id="statSpentSeeding">0</dd>
+            </div>
+            <div>
+              <dt>Открыто клеток</dt>
+              <dd id="statOpenCells">0</dd>
+            </div>
+            <div>
+              <dt>Полетов</dt>
+              <dd id="statFlightsCount">0</dd>
+            </div>
+            <div>
+              <dt>Начислено за 7 дней</dt>
+              <dd id="statRecentTyaptyaps">0</dd>
+            </div>
+            <div>
+              <dt>Последнее начисление</dt>
+              <dd id="statLastSettlement">пока нет</dd>
+            </div>
+          </dl>
+          <section class="achievement-list" aria-label="Достижения">
+            <div id="achievementList"></div>
+          </section>
+        </section>
+        <button id="resetButton" class="danger" type="button">Сбросить прогресс</button>
+      </form>
+    </dialog>
+
+    <script src="app.js?v=1.2.7"></script>
+  </body>
+</html>
