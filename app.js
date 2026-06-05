@@ -9,6 +9,7 @@ const FLIGHT_STEP_GOAL = 15000;
 const DEMO_FLIGHT_LEVEL = 8;
 const FORCED_FLIGHT_LEVEL = 8;
 const DEMO_MODE = false;
+const MAX_COINS_INPUT = 999999;
 const DEMO_START_STEPS = 88888888;
 const STEP_SOURCE_DEVICE = "device";
 const STEP_SOURCE_DEMO = "demo";
@@ -1288,7 +1289,8 @@ function formatFixedCounter(value) {
 
 function parseCoinsInput(value) {
   const digits = String(value).replace(/\D/g, "");
-  return Math.max(0, Math.floor(Number(digits) || 0));
+  const coins = Math.max(0, Math.floor(Number(digits) || 0));
+  return Math.min(coins, MAX_COINS_INPUT);
 }
 
 function earnTyaptyaps(amount) {
@@ -2632,6 +2634,8 @@ function syncShellHome() {
 
   elements.shellHome.hidden = !shellHomeOpen;
   elements.shellButton.setAttribute("aria-expanded", String(shellHomeOpen));
+  elements.shellButton.setAttribute("aria-label", shellHomeOpen ? "Вернуться к карте" : "Открыть скорлупку");
+  elements.shellButton.setAttribute("title", shellHomeOpen ? "Вернуться к карте" : "Открыть скорлупку");
 }
 
 function openShellHome() {
@@ -2649,6 +2653,14 @@ function closeShellHome() {
   setMessage("Тяпа вернулся к карте.");
   playSfx("restOut");
   elements.shellButton?.focus();
+}
+
+function toggleShellHome() {
+  if (shellHomeOpen) {
+    closeShellHome();
+  } else {
+    openShellHome();
+  }
 }
 
 function changeZoom(direction) {
@@ -3565,7 +3577,7 @@ elements.restButton.addEventListener("click", toggleRest);
 elements.seedButton?.addEventListener("click", toggleSeedMode);
 elements.seedCancelButton?.addEventListener("click", () => cancelSeedMode());
 elements.flightSkillButton?.addEventListener("click", showFlightInfo);
-elements.shellButton?.addEventListener("click", openShellHome);
+elements.shellButton?.addEventListener("click", toggleShellHome);
 elements.shellCloseButton?.addEventListener("click", closeShellHome);
 elements.resetButton.addEventListener("click", resetProgress);
 elements.settingsButton.addEventListener("click", () => {

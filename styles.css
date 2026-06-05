@@ -5325,7 +5325,7 @@ dt {
   top: -154px;
   transform: translateX(-50%);
   width: min(520px, 62vw);
-  z-index: 4;
+  z-index: 9101;
 }
 
 .shell-title-button:hover {
@@ -6054,9 +6054,9 @@ dt {
 
 .shell-flight-skill {
   left: auto;
-  right: 12%;
-  top: 63%;
-  width: clamp(82px, 17vw, 118px);
+  right: 7.5%;
+  top: 61.5%;
+  width: clamp(138px, 24vw, 168px);
 }
 
 .shell-skill-button,
@@ -6070,12 +6070,72 @@ dt {
 }
 
 .shell-seed-action {
-  bottom: 6%;
   left: 50%;
   right: auto;
-  top: auto;
-  transform: translateX(-50%);
-  width: clamp(118px, 30vw, 164px);
+  top: 72%;
+  transform: translate(-50%, -50%);
+  width: clamp(126px, 28vw, 156px);
+  z-index: 8;
+}
+
+.shell-skill-button {
+  gap: 2px 8px;
+  grid-template-columns: 30px minmax(74px, 1fr);
+  min-height: 52px;
+  padding: 7px 9px;
+}
+
+.skill-mark {
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  height: 28px;
+  position: relative;
+  transform: rotate(-17deg);
+  width: 24px;
+}
+
+.skill-mark::before {
+  background:
+    radial-gradient(ellipse at 32% 24%, rgba(255, 255, 255, 0.9) 0 18%, transparent 19%),
+    linear-gradient(135deg, #fffae8 0 16%, #ffd96a 17% 38%, #aee7ff 39% 72%, #dccbff 73% 100%);
+  border-radius: 66% 34% 70% 30% / 34% 72% 28% 66%;
+  box-shadow:
+    inset -3px -3px 0 rgba(76, 130, 200, 0.13),
+    0 3px 5px rgba(76, 130, 200, 0.18);
+  content: "";
+  height: 26px;
+  left: 3px;
+  position: absolute;
+  top: 0;
+  width: 17px;
+}
+
+.skill-mark::after {
+  background: rgba(49, 89, 133, 0.44);
+  border-radius: 999px;
+  content: "";
+  height: 25px;
+  left: 12px;
+  position: absolute;
+  top: 3px;
+  transform: rotate(8deg);
+  width: 2px;
+}
+
+.shell-skill-button .skill-name,
+.shell-skill-button strong {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.shell-skill-button .skill-name {
+  font-size: clamp(0.68rem, 1.45vw, 0.82rem);
+}
+
+.shell-skill-button strong {
+  font-size: clamp(0.58rem, 1.22vw, 0.7rem);
 }
 
 .shell-collection::before,
@@ -6115,8 +6175,9 @@ dt {
   }
 
   .shell-flight-skill {
-    right: 11%;
-    top: 63%;
+    right: 6.5%;
+    top: 61.5%;
+    width: clamp(118px, 31vw, 142px);
   }
 
   .shell-nest {
@@ -6124,7 +6185,8 @@ dt {
   }
 
   .shell-seed-action {
-    bottom: 5.5%;
+    top: 72%;
+    width: clamp(112px, 30vw, 136px);
   }
 }
 
