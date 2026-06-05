@@ -6078,6 +6078,27 @@ dt {
   z-index: 8;
 }
 
+.open-button.corner-open {
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.92) 0 14%, transparent 15%),
+    linear-gradient(180deg, #ff7272, #d83232);
+  border: 2px solid rgba(124, 10, 10, 0.34);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.38),
+    0 7px 16px rgba(126, 21, 21, 0.26);
+  color: #fff7f7;
+  display: grid;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  font-weight: 1000;
+  line-height: 1;
+  min-height: 44px;
+  padding: 0;
+  text-shadow: 0 1px 0 rgba(88, 0, 0, 0.24);
+  width: clamp(44px, 12vw, 58px);
+}
+
 .shell-skill-button {
   gap: 2px 8px;
   grid-template-columns: 30px minmax(74px, 1fr);

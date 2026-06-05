@@ -199,7 +199,24 @@ const BIOME_BLEND_DIRECTIONS = [
   ["w", -1, 0],
   ["e", 1, 0],
 ];
-const FAMILY_EVENTS = {};
+const FAMILY_EVENTS = {
+  "0:0": {
+    label: "Семья Тяпы-утки",
+    image: "assets/family-portraits/tyapa-ducks-family.png",
+  },
+  "364:0": {
+    label: "Семья Тяпы-гуся",
+    image: "assets/family-portraits/tyapa-geese-family.png",
+  },
+  "0:364": {
+    label: "Семья Тяпы-курицы",
+    image: "assets/family-portraits/tyapa-chickens-family.png",
+  },
+  "364:364": {
+    label: "Семья Тяпы-цесарки",
+    image: "assets/family-portraits/tyapa-guinea-fowl-family.png",
+  },
+};
 const CHARACTERS = [];
 const ITEM_CATALOG = {
   pebble: {
@@ -407,6 +424,7 @@ const createInitialState = () => {
     seededTrailCount: 0,
     isResting: false,
     familyOverlay: null,
+    foundFamilies: {},
     activeDialogue: null,
     characterPlacements,
     seenDialogues: {},
@@ -426,6 +444,7 @@ const createInitialState = () => {
 };
 
 let state = loadState();
+showCurrentFamilyIfNeeded();
 let audioSettings = loadAudioSettings();
 let audioContext = null;
 let masterGain = null;
@@ -695,6 +714,7 @@ function normalizeState(saved) {
   merged.seedMode = false;
   merged.seededTrailCount = Math.max(0, Math.floor(Number(saved.seededTrailCount) || 0));
   merged.familyOverlay = normalizeFamilyOverlay(merged.familyOverlay);
+  merged.foundFamilies = saved.foundFamilies && typeof saved.foundFamilies === "object" ? { ...saved.foundFamilies } : {};
   merged.biomeVersion = BIOME_VERSION;
   if (merged.viewSize === 10) {
     merged.viewSize = 11;
@@ -837,7 +857,29 @@ function ensureCharacterCells(cells, placements) {
 function normalizeFamilyOverlay(overlay) {
   if (!overlay) return null;
 
-  return Object.values(FAMILY_EVENTS).find(({ image }) => image === overlay.image) || null;
+  const entry = Object.entries(FAMILY_EVENTS).find(([, { image }]) => image === overlay.image);
+  if (!entry) return null;
+
+  const [key, family] = entry;
+  return { ...family, key };
+}
+
+function familyOverlayForCorner(x, y) {
+  const key = keyOf(x, y);
+  const family = FAMILY_EVENTS[key];
+  if (!family || state.foundFamilies?.[key]) return null;
+
+  return { ...family, key };
+}
+
+function showCurrentFamilyIfNeeded() {
+  if (state.familyOverlay) return false;
+
+  const family = familyOverlayForCorner(state.position.x, state.position.y);
+  if (!family) return false;
+
+  state.familyOverlay = family;
+  return true;
 }
 
 function normalizeDialogue(dialogue) {
@@ -2396,7 +2438,7 @@ function finishTyapaTravel(previousPosition, nextPosition, options = {}) {
   state.position = { ...nextPosition };
   if (recordTrail) recordTrailMove(previousPosition, state.position);
   state.isResting = false;
-  state.familyOverlay = familyForCorner(nextPosition.x, nextPosition.y);
+  state.familyOverlay = familyOverlayForCorner(nextPosition.x, nextPosition.y);
   const hasFamilyOverlay = Boolean(state.familyOverlay);
   const character = characterAtHome(nextPosition.x, nextPosition.y);
   recordCharacterMeeting(character);
@@ -2525,7 +2567,7 @@ function openCell(x, y) {
   state.openedCellsCount += 1;
   state.cells[keyOf(x, y)] = { x, y, type: randomTileType(x, y) };
   placeCharactersAfterCellOpen(x, y);
-  state.familyOverlay = familyForCorner(x, y);
+  state.familyOverlay = familyOverlayForCorner(x, y);
   const hasFamilyOverlay = Boolean(state.familyOverlay);
   completeStartTutorialAction("open");
   maybeQueueProgressTutorialTips();
@@ -2538,6 +2580,12 @@ function openCell(x, y) {
 }
 
 function continueFromFamily() {
+  if (state.familyOverlay) {
+    const key = state.familyOverlay.key || Object.entries(FAMILY_EVENTS).find(([, { image }]) => image === state.familyOverlay.image)?.[0];
+    if (key) {
+      state.foundFamilies = { ...(state.foundFamilies || {}), [key]: true };
+    }
+  }
   state.familyOverlay = null;
   saveState();
   render();
@@ -3233,7 +3281,7 @@ function renderMap() {
       const tileFlip = hash2d(x, y, 1222) > 0.5 ? -1 : 1;
       const occupant = isCurrent ? renderDuck() : character ? renderCharacterToken(character) : "";
       const openControl = !cell && canOpen
-        ? `<button type="button" class="open-button${canAffordOpen ? " affordable" : " muted"}${isCorner ? " corner-open" : ""}">Открыть ${formatNumber(openCost)}</button>`
+        ? `<button type="button" class="open-button${canAffordOpen ? " affordable" : " muted"}${isCorner ? " corner-open" : ""}"${isCorner ? ' aria-label="Открыть финальный угол" title="Открыть финальный угол"' : ""}>${isCorner ? "×" : `Открыть ${formatNumber(openCost)}`}</button>`
         : "";
       const tileMarkup = `
         <img class="tile-art" src="${TILE_IMAGES[imageType]}" alt="" draggable="false" loading="eager" decoding="async" />
