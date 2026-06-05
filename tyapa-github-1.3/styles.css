@@ -5429,6 +5429,32 @@ dt {
   mask-image: radial-gradient(circle at center, #000 0 54%, rgba(0, 0, 0, 0.78) 64%, transparent 76%);
 }
 
+.trail-art-center-junction {
+  -webkit-mask-image: radial-gradient(circle at center, #000 0 46%, rgba(0, 0, 0, 0.68) 58%, transparent 72%);
+  mask-image: radial-gradient(circle at center, #000 0 46%, rgba(0, 0, 0, 0.68) 58%, transparent 72%);
+}
+
+.trail-art-center-turn {
+  -webkit-mask-image: radial-gradient(circle at center, #000 0 42%, rgba(0, 0, 0, 0.68) 58%, transparent 72%);
+  mask-image: radial-gradient(circle at center, #000 0 42%, rgba(0, 0, 0, 0.68) 58%, transparent 72%);
+}
+
+.trail-art-turn-up-right {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 100%, 50% 50%, 0 50%);
+}
+
+.trail-art-turn-right-down {
+  clip-path: polygon(50% 0, 100% 0, 100% 100%, 0 100%, 0 50%, 50% 50%);
+}
+
+.trail-art-turn-down-left {
+  clip-path: polygon(0 0, 50% 0, 50% 50%, 100% 50%, 100% 100%, 0 100%);
+}
+
+.trail-art-turn-left-up {
+  clip-path: polygon(0 0, 100% 0, 100% 50%, 50% 50%, 50% 100%, 0 100%);
+}
+
 .trail-art-arm-up {
   clip-path: inset(0 0 50% 0);
 }
@@ -6378,5 +6404,129 @@ dt {
   .loader-copy {
     gap: 6px;
     padding: 10px 14px 12px;
+  }
+}
+
+/* 1.3.10 shell overlay polish: keep the artist interior visible on every phone size. */
+.shell-home-room {
+  aspect-ratio: 2 / 3;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(221, 247, 255, 0.02)),
+    url("assets/ui/shell-home-interior-gag.png") center / 100% 100% no-repeat,
+    linear-gradient(180deg, #ddf7ff, #fffbf4);
+  display: block;
+  height: auto;
+  max-height: 86svh;
+  max-width: 560px;
+  overflow: hidden;
+  padding: 0;
+  width: min(78vw, 560px);
+}
+
+.shell-seed-action,
+.shell-flight-skill,
+.shell-collection,
+.shell-diary {
+  position: absolute;
+  transform: none;
+  z-index: 7;
+}
+
+.shell-collection {
+  left: 32%;
+  min-height: 7.4%;
+  padding: 5px 8px;
+  top: 29.6%;
+  width: 36%;
+}
+
+.shell-collection h3,
+.shell-diary h3 {
+  font-size: clamp(0.56rem, 1.42vw, 0.7rem);
+  line-height: 1.05;
+  margin-bottom: 4px;
+}
+
+.shell-flight-skill {
+  right: 5.8%;
+  top: 59.8%;
+  width: clamp(154px, 26vw, 184px);
+}
+
+.shell-seed-action {
+  left: 50%;
+  top: 68.4%;
+  transform: translate(-50%, -50%);
+  width: clamp(140px, 30vw, 176px);
+  z-index: 8;
+}
+
+.shell-skill-button,
+.seed-button {
+  background:
+    radial-gradient(circle at 26% 18%, rgba(255, 255, 255, 0.96) 0 10%, transparent 11%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(174, 231, 255, 0.58));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.78),
+    0 10px 20px rgba(49, 89, 133, 0.16);
+}
+
+.seed-button {
+  min-height: 54px;
+  padding: 8px 10px;
+}
+
+.seed-label,
+.seed-price,
+.shell-skill-button .skill-name,
+.shell-skill-button strong {
+  color: #315985;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.shell-skill-button {
+  grid-template-columns: 30px minmax(86px, 1fr);
+  min-height: 54px;
+}
+
+@media (max-width: 640px) {
+  .shell-home-room {
+    display: block;
+    height: auto;
+    max-height: 82svh;
+    max-width: 82vw;
+    padding: 0;
+    width: 82vw;
+  }
+
+  .shell-collection {
+    left: 32%;
+    top: 29.4%;
+    width: 36%;
+  }
+
+  .shell-flight-skill {
+    right: 4.8%;
+    top: 59.5%;
+    width: clamp(138px, 37vw, 164px);
+  }
+
+  .shell-seed-action {
+    top: 68.2%;
+    width: clamp(132px, 36vw, 158px);
+  }
+
+  .shell-skill-button {
+    grid-template-columns: 28px minmax(76px, 1fr);
+  }
+}
+
+@media (max-width: 360px) and (max-height: 620px) {
+  .shell-home-room {
+    height: auto;
+    max-height: 80svh;
+    padding: 0;
+    width: min(82vw, 300px);
   }
 }

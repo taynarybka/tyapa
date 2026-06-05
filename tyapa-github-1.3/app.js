@@ -9,7 +9,8 @@ const FLIGHT_STEP_GOAL = 15000;
 const DEMO_FLIGHT_LEVEL = 8;
 const FORCED_FLIGHT_LEVEL = 8;
 const DEMO_MODE = false;
-const MAX_COINS_INPUT = 999999;
+const MAX_COINS_DISPLAY = 999999;
+const MAX_COINS_BALANCE = 999999999;
 const DEMO_START_STEPS = 88888888;
 const STEP_SOURCE_DEVICE = "device";
 const STEP_SOURCE_DEMO = "demo";
@@ -75,7 +76,7 @@ const MESSAGE_VARIANTS = {
     () => "Шаги обновлены, новых тяптяпов пока нет.",
   ],
   coinsUpdated: [
-    ({ coins }) => `Тяптяпы обновлены: ${formatNumber(coins)}.`,
+    ({ coins }) => `Тяптяпы обновлены: ${formatCoinsForDisplay(coins)}.`,
   ],
   worldEdge: [
     () => "Край мира. Тяпа пока туда не идет.",
@@ -173,8 +174,16 @@ const TRAIL_IMAGES = {
   horizontal: "assets/trails/variant-2/horizontal-trace.png",
   vertical: "assets/trails/variant-2/vertical-trace.png",
   cross: "assets/trails/variant-2/cross-trace.png",
-  tDown: "assets/trails/variant-2/t-down-cell.png",
+  tDown: "assets/trails/variant-2/t-down-trace.png",
 };
+const LOADER_MESSAGES = [
+  "Мир просыпается рядом",
+  "Скорлупка держит тепло",
+  "Карта слушает маленькие шаги",
+  "Туман становится чуть знакомее",
+  "Где-то впереди блестит след",
+  "Тихие места ждут своего имени",
+];
 const PRELOAD_CRITICAL_ASSETS = [
   "assets/backgrounds/screen-background-open-sky.png",
   TILE_IMAGES.field,
@@ -190,6 +199,7 @@ const PRELOAD_STAGED_ASSETS = [
   "assets/ui/sliced/music-button.png",
   "assets/ui/sliced/eggshell-title.png",
   "assets/ui/sliced/bottom-message-block.png",
+  "assets/ui/shell-home-interior-gag.png",
 ];
 const PRELOAD_TIMEOUT_MS = 7000;
 const BIOME_VERSION = 3;
@@ -703,7 +713,7 @@ function normalizeState(saved) {
   merged.characterPlacements = { ...createInitialCharacterPlacements(), ...normalizeCharacterPlacements(saved.characterPlacements || saved.characters) };
   ensureCharacterCells(merged.cells, merged.characterPlacements);
   merged.trails = normalizeTrails(merged.trails, merged.cells);
-  merged.coins = safeCount(merged.coins);
+  merged.coins = Math.min(safeCount(merged.coins), MAX_COINS_BALANCE);
   merged.spentCoins = safeCount(merged.spentCoins);
   merged.stepsToday = safeCount(merged.stepsToday);
   merged.lastStepsCounted = safeCount(merged.lastStepsCounted);
@@ -766,7 +776,7 @@ function normalizeState(saved) {
   }
 
   if (DEMO_MODE && merged.coins + merged.spentCoins < DEMO_START_STEPS) {
-    merged.coins = Math.max(0, DEMO_START_STEPS - merged.spentCoins);
+    merged.coins = Math.min(MAX_COINS_BALANCE, Math.max(0, DEMO_START_STEPS - merged.spentCoins));
   }
 
   if (merged.stepsToday >= FLIGHT_STEP_GOAL) {
@@ -1204,13 +1214,36 @@ function trailArtLayers(trail, directions) {
   };
 
   const layers = directions.map(armLayer);
+  const centerOpacity = () => Math.min(1, Math.max(...directions.map((direction) => trailVisibility(trail[direction]))) * 0.9);
 
-  if (directions.length > 1) {
-    const centerOpacity = Math.min(1, Math.max(...directions.map((direction) => trailVisibility(trail[direction]))) * 0.9);
-    layers.push(layer(TRAIL_IMAGES.cross, 0, "trail-art-center", centerOpacity));
+  if (directions.length >= 4) {
+    layers.push(layer(TRAIL_IMAGES.cross, 0, "trail-art-center", centerOpacity()));
+  } else if (directions.length === 3) {
+    const missingDirection = TRAIL_DIRECTIONS.find((direction) => !directions.includes(direction));
+    const rotationByMissingDirection = {
+      up: 0,
+      right: 90,
+      down: 180,
+      left: 270,
+    };
+    layers.push(layer(TRAIL_IMAGES.tDown, rotationByMissingDirection[missingDirection] || 0, "trail-art-center trail-art-center-junction", centerOpacity()));
+  } else if (directions.length === 2) {
+    const hasOppositePair = (directions.includes("left") && directions.includes("right")) || (directions.includes("up") && directions.includes("down"));
+    if (!hasOppositePair) {
+      const turnKey = turnClassForDirections(directions);
+      layers.push(layer(TRAIL_IMAGES.cross, 0, `trail-art-center trail-art-center-turn trail-art-turn-${turnKey}`, centerOpacity()));
+    }
   }
 
   return layers;
+}
+
+function turnClassForDirections(directions) {
+  const has = (direction) => directions.includes(direction);
+  if (has("up") && has("right")) return "up-right";
+  if (has("right") && has("down")) return "right-down";
+  if (has("down") && has("left")) return "down-left";
+  return "left-up";
 }
 
 function trailPaths(directions) {
@@ -1307,9 +1340,7 @@ function formatNumber(value) {
 }
 
 function formatCoinsForDisplay(value) {
-  if (DEMO_MODE && state.spentCoins === 0 && value > 999999) return ">1 млн";
-
-  return formatNumber(value);
+  return formatNumber(Math.min(safeCount(value), MAX_COINS_DISPLAY));
 }
 
 function formatFixedCounter(value) {
@@ -1323,14 +1354,14 @@ function formatFixedCounter(value) {
 function parseCoinsInput(value) {
   const digits = String(value).replace(/\D/g, "");
   const coins = Math.max(0, Math.floor(Number(digits) || 0));
-  return Math.min(coins, MAX_COINS_INPUT);
+  return Math.min(coins, MAX_COINS_DISPLAY);
 }
 
 function earnTyaptyaps(amount) {
   const earned = safeCount(amount);
   if (earned <= 0) return 0;
 
-  state.coins += earned;
+  state.coins = Math.min(MAX_COINS_BALANCE, state.coins + earned);
   state.stats.totalTyaptyapsEarned += earned;
   return earned;
 }
@@ -2203,6 +2234,20 @@ function setLoaderProgress(value) {
   if (bar) bar.style.width = `${Math.min(Math.max(value, 0), 100)}%`;
 }
 
+let loaderMessageTimer = null;
+
+function startLoaderMessages() {
+  const title = document.querySelector("#loaderTitle");
+  if (!title || loaderMessageTimer) return;
+
+  let messageIndex = 0;
+  title.textContent = LOADER_MESSAGES[messageIndex];
+  loaderMessageTimer = window.setInterval(() => {
+    messageIndex = (messageIndex + 1) % LOADER_MESSAGES.length;
+    title.textContent = LOADER_MESSAGES[messageIndex];
+  }, 1500);
+}
+
 function loadImageAsset(src) {
   return new Promise((resolve) => {
     const image = new Image();
@@ -2247,6 +2292,7 @@ async function preloadImageAssets(assets, { onProgress, concurrency = 3 } = {}) 
 }
 
 async function preloadKeyAssets() {
+  startLoaderMessages();
   setLoaderProgress(0);
 
   const results = await preloadImageAssets(PRELOAD_CRITICAL_ASSETS, {
@@ -2274,6 +2320,10 @@ function preloadStagedAssets() {
 function hideLoader() {
   const loader = document.querySelector("#loader");
   document.body.classList.remove("loading");
+  if (loaderMessageTimer) {
+    window.clearInterval(loaderMessageTimer);
+    loaderMessageTimer = null;
+  }
   if (!loader) return;
 
   loader.classList.add("done");
@@ -2410,7 +2460,7 @@ function updateSteps() {
 }
 
 function startCoinsEdit() {
-  elements.coins.value = String(state.coins);
+  elements.coins.value = String(Math.min(safeCount(state.coins), MAX_COINS_DISPLAY));
   elements.coins.select();
 }
 
@@ -3383,7 +3433,7 @@ function lastSettlementLabel() {
 function renderSettingsStats() {
   const stats = state.stats || createInitialStats();
   const spent = { ...createEmptySpendStats(), ...(stats.spent || {}) };
-  setStatText(elements.statCoinsCurrent, state.coins);
+  setStatText(elements.statCoinsCurrent, Math.min(safeCount(state.coins), MAX_COINS_DISPLAY));
   setStatText(elements.statTotalTyaptyaps, stats.totalTyaptyapsEarned);
   setStatText(elements.statSpentOpenCells, spent.openCells);
   setStatText(elements.statSpentFlights, spent.flights);

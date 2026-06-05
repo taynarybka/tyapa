@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Тяпа 1.3</title>
     <link rel="icon" type="image/png" href="assets/tyapa-hidden.png" />
-    <link rel="stylesheet" href="styles.css?v=1.3.9" />
+    <link rel="preload" as="image" href="assets/ui/shell-home-interior-gag.png" />
+    <link rel="stylesheet" href="styles.css?v=1.3.10" />
   </head>
   <body class="loading">
     <div class="loader" id="loader" role="status" aria-live="polite">
@@ -37,7 +38,7 @@
           </div>
         </div>
         <div class="loader-copy">
-          <p class="loader-title">Тяпа собирает тропинку</p>
+          <p class="loader-title" id="loaderTitle">Мир просыпается рядом</p>
           <strong class="loader-progress" id="loaderProgress">0%</strong>
           <span class="loader-bar" aria-hidden="true"><span id="loaderBarFill"></span></span>
         </div>
@@ -305,6 +306,6 @@
       </form>
     </dialog>
 
-    <script src="app.js?v=1.3.9"></script>
+    <script src="app.js?v=1.3.10"></script>
   </body>
 </html>
