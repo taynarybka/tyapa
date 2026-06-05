@@ -5398,6 +5398,7 @@ dt {
   inset: 0;
   max-width: none;
   object-fit: cover;
+  opacity: var(--trail-opacity, 1);
   pointer-events: none;
   position: absolute;
   transform: rotate(var(--trail-rotation, 0deg));
@@ -5406,11 +5407,11 @@ dt {
 }
 
 .trail-art-wrap.trail-weak {
-  opacity: 0.72;
+  opacity: 1;
 }
 
 .trail-art-wrap.trail-light {
-  opacity: 0.86;
+  opacity: 1;
 }
 
 .trail-art-wrap.trail-medium,
@@ -5419,7 +5420,13 @@ dt {
 }
 
 .trail-art-arm {
-  opacity: 0.94;
+  opacity: var(--trail-opacity, 1);
+}
+
+.trail-art-center {
+  opacity: var(--trail-opacity, 1);
+  -webkit-mask-image: radial-gradient(circle at center, #000 0 54%, rgba(0, 0, 0, 0.78) 64%, transparent 76%);
+  mask-image: radial-gradient(circle at center, #000 0 54%, rgba(0, 0, 0, 0.78) 64%, transparent 76%);
 }
 
 .trail-art-arm-up {

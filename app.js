@@ -170,9 +170,9 @@ const TRAIL_IMAGES = {
   start: "assets/trails/variant-2/start.png",
   middle: "assets/trails/variant-2/middle.png",
   max: "assets/trails/variant-2/max.png",
-  horizontal: "assets/trails/variant-2/horizontal-cell.png",
-  vertical: "assets/trails/variant-2/vertical-cell.png",
-  cross: "assets/trails/variant-2/cross-cell.png",
+  horizontal: "assets/trails/variant-2/horizontal-trace.png",
+  vertical: "assets/trails/variant-2/vertical-trace.png",
+  cross: "assets/trails/variant-2/cross-trace.png",
   tDown: "assets/trails/variant-2/t-down-cell.png",
 };
 const PRELOAD_CRITICAL_ASSETS = [
@@ -961,10 +961,17 @@ function normalizeTrails(trails, cells) {
 
 function trailLevel(value) {
   if (value < TRAIL_VISIBLE_AT) return "none";
-  if (value <= 5) return "weak";
-  if (value <= 8) return "light";
-  if (value <= 11) return "medium";
+  if (value < 7) return "weak";
+  if (value < TRAIL_MAX) return "medium";
   return "strong";
+}
+
+function trailVisibility(value) {
+  const count = clampTrail(value);
+  if (count < TRAIL_VISIBLE_AT) return 0;
+  if (count < 7) return 0.24 + (count - TRAIL_VISIBLE_AT) * 0.06;
+  if (count < TRAIL_MAX) return 0.58 + (count - 7) * 0.075;
+  return 1;
 }
 
 function trailForCell(x, y) {
@@ -1165,8 +1172,8 @@ function renderTrail(cell) {
       : activeDirections.length === 2 && !hasOppositePair
         ? "trail-turn"
         : "trail-path";
-  const layers = trailArtLayers(activeDirections, level).map(({ src, rotation, layerClass }) => `
-    <img class="trail-art ${layerClass}" src="${src}" alt="" draggable="false" loading="lazy" decoding="async" style="--trail-rotation: ${rotation}deg;" />
+  const layers = trailArtLayers(trail, activeDirections).map(({ src, rotation, layerClass, opacity }) => `
+    <img class="trail-art ${layerClass}" src="${src}" alt="" draggable="false" loading="lazy" decoding="async" style="--trail-rotation: ${rotation}deg; --trail-opacity: ${opacity.toFixed(3)};" />
   `).join("");
 
   const markup = `
@@ -1184,42 +1191,26 @@ function straightTrailImage(level) {
   return TRAIL_IMAGES.max;
 }
 
-function trailArtLayers(directions, level) {
-  const has = (direction) => directions.includes(direction);
-  const layer = (src, rotation = 0, layerClass = "trail-art-main") => ({ src, rotation, layerClass });
+function trailArtLayers(trail, directions) {
+  const layer = (src, rotation = 0, layerClass = "trail-art-main", opacity = 1) => ({ src, rotation, layerClass, opacity });
   const armLayer = (direction) => {
     const isVertical = direction === "up" || direction === "down";
     return layer(
       isVertical ? TRAIL_IMAGES.vertical : TRAIL_IMAGES.horizontal,
       0,
-      `trail-art-arm trail-art-arm-${direction}`
+      `trail-art-arm trail-art-arm-${direction}`,
+      trailVisibility(trail[direction])
     );
   };
 
-  if (directions.length >= 4) {
-    return [layer(TRAIL_IMAGES.cross)];
+  const layers = directions.map(armLayer);
+
+  if (directions.length > 1) {
+    const centerOpacity = Math.min(1, Math.max(...directions.map((direction) => trailVisibility(trail[direction]))) * 0.9);
+    layers.push(layer(TRAIL_IMAGES.cross, 0, "trail-art-center", centerOpacity));
   }
 
-  if (directions.length === 3) {
-    const missing = TRAIL_DIRECTIONS.find((direction) => !has(direction));
-    const rotationByMissingDirection = {
-      up: 0,
-      down: 180,
-      left: -90,
-      right: 90,
-    };
-    return [layer(TRAIL_IMAGES.tDown, rotationByMissingDirection[missing] || 0)];
-  }
-
-  if (has("left") && has("right")) return [layer(TRAIL_IMAGES.horizontal)];
-  if (has("up") && has("down")) return [layer(TRAIL_IMAGES.vertical)];
-
-  if (directions.length === 2) {
-    return directions.map(armLayer);
-  }
-
-  if (directions.length === 1) return [armLayer(directions[0])];
-  return [layer(straightTrailImage(level))];
+  return layers;
 }
 
 function trailPaths(directions) {
