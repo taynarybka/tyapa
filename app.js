@@ -475,6 +475,7 @@ let activeTravelAnimation = null;
 let shellHomeOpen = false;
 let introCutsceneActive = false;
 let introCutsceneTimer = null;
+let worldEdgePulseTimer = null;
 const mapTilePool = [];
 let mapTileLayer = null;
 const trailMarkupCache = new Map();
@@ -1182,6 +1183,13 @@ function renderTrail(cell) {
       : activeDirections.length === 2 && !hasOppositePair
         ? "trail-turn"
         : "trail-path";
+
+  if (shapeClass === "trail-turn") {
+    const markup = renderSvgTrail(activeDirections, level, shapeClass, directionClasses);
+    trailMarkupCache.set(cacheKey, markup);
+    return markup;
+  }
+
   const layers = trailArtLayers(trail, activeDirections).map(({ src, rotation, layerClass, opacity }) => `
     <img class="trail-art ${layerClass}" src="${src}" alt="" draggable="false" loading="lazy" decoding="async" style="--trail-rotation: ${rotation}deg; --trail-opacity: ${opacity.toFixed(3)};" />
   `).join("");
@@ -1195,10 +1203,28 @@ function renderTrail(cell) {
   return markup;
 }
 
-function straightTrailImage(level) {
-  if (level === "weak") return TRAIL_IMAGES.start;
-  if (level === "light" || level === "medium") return TRAIL_IMAGES.middle;
-  return TRAIL_IMAGES.max;
+function renderSvgTrail(directions, level, shapeClass, directionClasses) {
+  const paths = trailPaths(directions);
+  const pathMarkup = paths.map(({ d, kind }) => {
+    const lineClass = kind === "branch" ? " trail-line-branch" : "";
+    return `
+      <path class="trail-line trail-line-shadow${lineClass}" d="${d}" pathLength="100" />
+      <path class="trail-line trail-line-edge${lineClass}" d="${d}" pathLength="100" />
+      <path class="trail-line trail-line-core${lineClass}" d="${d}" pathLength="100" />
+      <path class="trail-line trail-line-pearl${lineClass}" d="${d}" pathLength="100" />
+      <path class="trail-line trail-line-glint${lineClass}" d="${d}" pathLength="100" />
+      <path class="trail-line trail-line-foot trail-line-foot-left${lineClass}" d="${d}" pathLength="100" />
+      <path class="trail-line trail-line-foot trail-line-foot-right${lineClass}" d="${d}" pathLength="100" />
+    `;
+  }).join("");
+
+  return `
+    <span class="trail trail-svg-wrap trail-${level} ${shapeClass} ${directionClasses}" aria-hidden="true">
+      <svg class="trail-svg" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+        ${pathMarkup}
+      </svg>
+    </span>
+  `;
 }
 
 function trailArtLayers(trail, directions) {
@@ -1478,6 +1504,53 @@ function openCostForNextCell() {
 
 function insideWorld(x, y) {
   return x >= 0 && y >= 0 && x < WORLD_SIZE && y < WORLD_SIZE;
+}
+
+function worldEdgeDirections(x, y) {
+  if (!insideWorld(x, y)) return [];
+
+  const directions = [];
+  if (y === 0) directions.push("top");
+  if (y === WORLD_SIZE - 1) directions.push("bottom");
+  if (x === 0) directions.push("left");
+  if (x === WORLD_SIZE - 1) directions.push("right");
+  return directions;
+}
+
+function worldEdgeClasses(x, y) {
+  const directions = worldEdgeDirections(x, y);
+  if (directions.length === 0) return "";
+
+  return ` world-edge${directions.length > 1 ? " world-edge-corner" : ""}${directions.map((direction) => ` world-edge-${direction}`).join("")}`;
+}
+
+function renderWorldEdgeMist(x, y) {
+  const directions = worldEdgeDirections(x, y);
+  if (directions.length === 0) return "";
+
+  const layers = directions
+    .map((direction) => `<span class="world-edge-mist edge-${direction}" aria-hidden="true"></span>`)
+    .join("");
+  return `${layers}<span class="world-edge-dew" aria-hidden="true"></span>`;
+}
+
+function triggerWorldEdgePulse(direction) {
+  if (!elements.map) return;
+
+  const pulseClass = `edge-pulse-${direction}`;
+  const pulseClasses = ["edge-pulse-up", "edge-pulse-down", "edge-pulse-left", "edge-pulse-right"];
+  elements.map.classList.remove("edge-pulse", ...pulseClasses);
+  void elements.map.offsetWidth;
+  elements.map.classList.add("edge-pulse", pulseClass);
+
+  if (worldEdgePulseTimer !== null) {
+    window.clearTimeout(worldEdgePulseTimer);
+  }
+
+  worldEdgePulseTimer = window.setTimeout(() => {
+    elements.map?.classList.remove("edge-pulse", ...pulseClasses);
+    worldEdgePulseTimer = null;
+  }, 980);
 }
 
 function hasCell(x, y) {
@@ -2526,6 +2599,7 @@ function moveTyapa(direction) {
   const nextY = state.position.y + dy;
 
   if (!insideWorld(nextX, nextY)) {
+    triggerWorldEdgePulse(direction);
     setRandomMessage("worldEdge");
     playSfx("moveDenied");
     return;
@@ -3315,6 +3389,8 @@ function renderMap() {
       const details = visibleCell ? biomeDetailLayers(cell) : "";
       const surface = visibleCell ? biomeSurfaceLayer(cell) : "";
       const trail = visibleCell ? renderTrail(cell) : "";
+      const edgeMist = renderWorldEdgeMist(x, y);
+      const edgeClassName = worldEdgeClasses(x, y);
       const tutorialClassName = tutorialTileClass(x, y, canOpen, tutorialEntry, tutorialTarget);
       const seedable = Boolean(state.seedMode && visibleCell && hasVisibleTrailAt(x, y));
       const seedBlocked = Boolean(state.seedMode && visibleCell && !seedable);
@@ -3330,6 +3406,7 @@ function renderMap() {
         ${details}
         ${surface}
         ${trail}
+        ${edgeMist}
         ${coord}
         ${occupant}
         ${openControl}
@@ -3349,11 +3426,12 @@ function renderMap() {
         details,
         surface,
         trail,
+        edgeMist,
       ].join("|");
 
       tileIndex += 1;
       tile.hidden = false;
-      tile.className = `tile ${visibleCell ? cell.type : "closed"}${isCurrent ? " current" : ""}${canOpen ? " openable" : ""}${seedable ? " seedable" : ""}${seedBlocked ? " seed-blocked" : ""}${tutorialClassName}`;
+      tile.className = `tile ${visibleCell ? cell.type : "closed"}${edgeClassName}${isCurrent ? " current" : ""}${canOpen ? " openable" : ""}${seedable ? " seedable" : ""}${seedBlocked ? " seed-blocked" : ""}${tutorialClassName}`;
       tile.setAttribute("aria-label", cell ? TILE_LABELS[cell.type] : "закрытая клетка");
       tile.style.setProperty("--tile-left", `${visualColumn * tileSize}%`);
       tile.style.setProperty("--tile-top", `${visualRow * tileSize}%`);

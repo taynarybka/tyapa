@@ -5378,7 +5378,8 @@ dt {
   mix-blend-mode: normal;
 }
 
-.trail-art-wrap {
+.trail-art-wrap,
+.trail-svg-wrap {
   background: none;
   box-shadow: none;
   display: block;
@@ -5478,6 +5479,7 @@ dt {
   --trail-spark: rgba(255, 255, 250, 0.7);
   --trail-pearl: rgba(220, 203, 255, 0.58);
   --trail-gold: rgba(255, 217, 106, 0.38);
+  --trail-width: 14;
   opacity: 0.9;
 }
 
@@ -5605,6 +5607,123 @@ dt {
 
 .biome-drift-3 {
   opacity: 0.82;
+}
+
+.world-edge-mist,
+.world-edge-dew {
+  pointer-events: none;
+  position: absolute;
+}
+
+.world-edge-mist {
+  mix-blend-mode: screen;
+  opacity: 0.82;
+  z-index: 4;
+}
+
+.world-edge-mist.edge-top {
+  background:
+    radial-gradient(ellipse at 22% 8%, rgba(255, 255, 255, 0.74) 0 7%, transparent 22%),
+    radial-gradient(ellipse at 76% 10%, rgba(220, 203, 255, 0.42) 0 6%, transparent 20%),
+    linear-gradient(180deg, rgba(255, 250, 242, 0.78) 0%, rgba(221, 247, 255, 0.48) 42%, rgba(174, 231, 255, 0.16) 68%, transparent 100%);
+  height: 48%;
+  inset: 0 0 auto;
+}
+
+.world-edge-mist.edge-bottom {
+  background:
+    radial-gradient(ellipse at 28% 92%, rgba(255, 255, 255, 0.7) 0 7%, transparent 22%),
+    radial-gradient(ellipse at 74% 88%, rgba(220, 203, 255, 0.38) 0 6%, transparent 20%),
+    linear-gradient(0deg, rgba(255, 250, 242, 0.78) 0%, rgba(221, 247, 255, 0.48) 42%, rgba(174, 231, 255, 0.16) 68%, transparent 100%);
+  bottom: 0;
+  height: 48%;
+  left: 0;
+  right: 0;
+}
+
+.world-edge-mist.edge-left {
+  background:
+    radial-gradient(ellipse at 8% 26%, rgba(255, 255, 255, 0.72) 0 7%, transparent 22%),
+    radial-gradient(ellipse at 10% 78%, rgba(220, 203, 255, 0.36) 0 6%, transparent 20%),
+    linear-gradient(90deg, rgba(255, 250, 242, 0.76) 0%, rgba(221, 247, 255, 0.46) 42%, rgba(105, 213, 255, 0.13) 68%, transparent 100%);
+  bottom: 0;
+  left: 0;
+  top: 0;
+  width: 48%;
+}
+
+.world-edge-mist.edge-right {
+  background:
+    radial-gradient(ellipse at 92% 24%, rgba(255, 255, 255, 0.72) 0 7%, transparent 22%),
+    radial-gradient(ellipse at 90% 76%, rgba(220, 203, 255, 0.36) 0 6%, transparent 20%),
+    linear-gradient(270deg, rgba(255, 250, 242, 0.76) 0%, rgba(221, 247, 255, 0.46) 42%, rgba(105, 213, 255, 0.13) 68%, transparent 100%);
+  bottom: 0;
+  right: 0;
+  top: 0;
+  width: 48%;
+}
+
+.world-edge-dew {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.78) 0 1.8%, transparent 3.2%),
+    radial-gradient(circle at 82% 24%, rgba(255, 250, 242, 0.72) 0 1.4%, transparent 2.9%),
+    radial-gradient(circle at 28% 82%, rgba(220, 203, 255, 0.48) 0 1.5%, transparent 3%),
+    radial-gradient(circle at 76% 78%, rgba(174, 231, 255, 0.5) 0 1.5%, transparent 3%);
+  inset: 0;
+  mix-blend-mode: screen;
+  opacity: 0.28;
+  z-index: 5;
+}
+
+.tile.world-edge-corner .world-edge-mist {
+  opacity: 0.9;
+}
+
+.tile.world-edge-corner .world-edge-dew {
+  opacity: 0.42;
+}
+
+.map.edge-pulse-up .tile.world-edge-top .world-edge-mist.edge-top,
+.map.edge-pulse-down .tile.world-edge-bottom .world-edge-mist.edge-bottom,
+.map.edge-pulse-left .tile.world-edge-left .world-edge-mist.edge-left,
+.map.edge-pulse-right .tile.world-edge-right .world-edge-mist.edge-right {
+  animation: opalEdgeBreath 0.96s ease-out 1;
+}
+
+.map.edge-pulse-up .tile.world-edge-top .world-edge-dew,
+.map.edge-pulse-down .tile.world-edge-bottom .world-edge-dew,
+.map.edge-pulse-left .tile.world-edge-left .world-edge-dew,
+.map.edge-pulse-right .tile.world-edge-right .world-edge-dew {
+  animation: opalEdgeDew 0.96s ease-out 1;
+}
+
+@keyframes opalEdgeBreath {
+  0%, 100% {
+    filter: brightness(1) saturate(1);
+    opacity: 0.82;
+  }
+
+  38% {
+    filter: brightness(1.22) saturate(1.08);
+    opacity: 0.98;
+  }
+
+  64% {
+    filter: brightness(1.12) saturate(1.04);
+    opacity: 0.9;
+  }
+}
+
+@keyframes opalEdgeDew {
+  0%, 100% {
+    opacity: 0.28;
+    transform: scale(1);
+  }
+
+  42% {
+    opacity: 0.58;
+    transform: scale(1.025);
+  }
 }
 
 .shell-home {
