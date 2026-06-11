@@ -175,6 +175,10 @@ const TRAIL_IMAGES = {
   vertical: "assets/trails/variant-2/vertical-trace.png",
   cross: "assets/trails/variant-2/cross-trace.png",
   tDown: "assets/trails/variant-2/t-down-trace.png",
+  cornerUpRight: "assets/trails/variant-2/corner-up-right-trace.png",
+  cornerRightDown: "assets/trails/variant-2/corner-right-down-trace.png",
+  cornerDownLeft: "assets/trails/variant-2/corner-down-left-trace.png",
+  cornerLeftUp: "assets/trails/variant-2/corner-left-up-trace.png",
 };
 const LOADER_MESSAGES = [
   "Мир просыпается рядом",
@@ -1184,12 +1188,6 @@ function renderTrail(cell) {
         ? "trail-turn"
         : "trail-path";
 
-  if (shapeClass === "trail-turn") {
-    const markup = renderSvgTrail(activeDirections, level, shapeClass, directionClasses);
-    trailMarkupCache.set(cacheKey, markup);
-    return markup;
-  }
-
   const layers = trailArtLayers(trail, activeDirections).map(({ src, rotation, layerClass, opacity }) => `
     <img class="trail-art ${layerClass}" src="${src}" alt="" draggable="false" loading="lazy" decoding="async" style="--trail-rotation: ${rotation}deg; --trail-opacity: ${opacity.toFixed(3)};" />
   `).join("");
@@ -1201,30 +1199,6 @@ function renderTrail(cell) {
   `;
   trailMarkupCache.set(cacheKey, markup);
   return markup;
-}
-
-function renderSvgTrail(directions, level, shapeClass, directionClasses) {
-  const paths = trailPaths(directions);
-  const pathMarkup = paths.map(({ d, kind }) => {
-    const lineClass = kind === "branch" ? " trail-line-branch" : "";
-    return `
-      <path class="trail-line trail-line-shadow${lineClass}" d="${d}" pathLength="100" />
-      <path class="trail-line trail-line-edge${lineClass}" d="${d}" pathLength="100" />
-      <path class="trail-line trail-line-core${lineClass}" d="${d}" pathLength="100" />
-      <path class="trail-line trail-line-pearl${lineClass}" d="${d}" pathLength="100" />
-      <path class="trail-line trail-line-glint${lineClass}" d="${d}" pathLength="100" />
-      <path class="trail-line trail-line-foot trail-line-foot-left${lineClass}" d="${d}" pathLength="100" />
-      <path class="trail-line trail-line-foot trail-line-foot-right${lineClass}" d="${d}" pathLength="100" />
-    `;
-  }).join("");
-
-  return `
-    <span class="trail trail-svg-wrap trail-${level} ${shapeClass} ${directionClasses}" aria-hidden="true">
-      <svg class="trail-svg" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
-        ${pathMarkup}
-      </svg>
-    </span>
-  `;
 }
 
 function trailArtLayers(trail, directions) {
@@ -1257,7 +1231,13 @@ function trailArtLayers(trail, directions) {
     const hasOppositePair = (directions.includes("left") && directions.includes("right")) || (directions.includes("up") && directions.includes("down"));
     if (!hasOppositePair) {
       const turnKey = turnClassForDirections(directions);
-      layers.push(layer(TRAIL_IMAGES.cross, 0, `trail-art-center trail-art-center-turn trail-art-turn-${turnKey}`, centerOpacity()));
+      const cornerImages = {
+        "up-right": TRAIL_IMAGES.cornerUpRight,
+        "right-down": TRAIL_IMAGES.cornerRightDown,
+        "down-left": TRAIL_IMAGES.cornerDownLeft,
+        "left-up": TRAIL_IMAGES.cornerLeftUp,
+      };
+      return [layer(cornerImages[turnKey], 0, `trail-art-corner trail-art-corner-${turnKey}`, centerOpacity())];
     }
   }
 

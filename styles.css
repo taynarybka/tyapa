@@ -6649,3 +6649,155 @@ dt {
     width: min(82vw, 300px);
   }
 }
+
+/* 1.3.12 quick visual cleanup: intro, loader, trails, and shell labels. */
+body.intro-playing .shell-title-button {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.loader-egg,
+.loader-egg img,
+.loader-egg-shine {
+  display: none !important;
+}
+
+.loader-scene::after {
+  animation: loaderWaterGlints 5.8s ease-in-out infinite;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(255, 255, 255, 0.7) 0 0.8%, transparent 2.6%),
+    radial-gradient(circle at 31% 24%, rgba(255, 250, 242, 0.62) 0 0.7%, transparent 2.4%),
+    radial-gradient(circle at 68% 18%, rgba(255, 255, 255, 0.66) 0 0.8%, transparent 2.8%),
+    radial-gradient(circle at 86% 33%, rgba(220, 203, 255, 0.5) 0 0.7%, transparent 2.4%),
+    radial-gradient(circle at 18% 48%, rgba(255, 255, 255, 0.56) 0 0.75%, transparent 2.7%),
+    radial-gradient(circle at 58% 56%, rgba(255, 250, 242, 0.58) 0 0.7%, transparent 2.5%),
+    radial-gradient(circle at 78% 72%, rgba(174, 231, 255, 0.48) 0 0.8%, transparent 2.8%),
+    radial-gradient(circle at 38% 82%, rgba(255, 255, 255, 0.54) 0 0.72%, transparent 2.5%);
+  height: 118%;
+  inset: -12% -8% auto;
+  opacity: 0.58;
+}
+
+@keyframes loaderWaterGlints {
+  0%, 100% {
+    opacity: 0.22;
+    transform: translate3d(-1.5%, -2%, 0) scale(0.98);
+  }
+
+  45% {
+    opacity: 0.62;
+    transform: translate3d(1.2%, 4%, 0) scale(1.03);
+  }
+}
+
+.shell-seed-action,
+.shell-flight-skill,
+.shell-collection,
+.shell-diary {
+  min-height: 0;
+  padding: 0;
+  width: auto;
+}
+
+.shell-collection,
+.shell-diary {
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.shell-collection {
+  left: 50%;
+  top: 31%;
+  transform: translateX(-50%);
+}
+
+.shell-diary {
+  left: 14%;
+  top: 58%;
+}
+
+.shell-flight-skill {
+  right: 12%;
+  top: 63%;
+}
+
+.shell-seed-action {
+  left: 50%;
+  top: 76%;
+  transform: translateX(-50%);
+}
+
+.shell-skill-button,
+.seed-button,
+.shell-collection h3,
+.shell-diary h3 {
+  align-items: center;
+  background:
+    radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.9) 0 10%, transparent 11%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.76), rgba(174, 231, 255, 0.46));
+  border: 1px solid rgba(126, 182, 232, 0.48);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+    0 8px 16px rgba(49, 89, 133, 0.12);
+  color: #315985;
+  display: inline-flex;
+  font-size: clamp(0.66rem, 1.55vw, 0.82rem);
+  font-weight: 900;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  min-height: 0;
+  padding: 7px 12px;
+  white-space: nowrap;
+}
+
+.seed-icon,
+.seed-price,
+.skill-mark,
+.shell-skill-button strong,
+.shell-collection h3 span,
+.shell-diary h3 span,
+.shell-items,
+.shell-diary ol {
+  display: none !important;
+}
+
+.shell-skill-button {
+  grid-template-columns: none;
+}
+
+@media (max-width: 640px) {
+  .shell-collection {
+    left: 50%;
+    top: 31%;
+    width: auto;
+  }
+
+  .shell-diary {
+    left: 13%;
+    top: 58%;
+    width: auto;
+  }
+
+  .shell-flight-skill {
+    right: 8%;
+    top: 63%;
+    width: auto;
+  }
+
+  .shell-seed-action {
+    top: 76%;
+    width: auto;
+  }
+
+  .shell-skill-button,
+  .seed-button,
+  .shell-collection h3,
+  .shell-diary h3 {
+    font-size: clamp(0.62rem, 2.6vw, 0.74rem);
+    padding: 6px 10px;
+  }
+}
